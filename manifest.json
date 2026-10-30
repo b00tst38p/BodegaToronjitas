@@ -1,0 +1,25 @@
+{
+  "name": "Bodega Toronjitas — Pedidos y Ganancias",
+  "short_name": "Toronjitas",
+  "description": "Registra pedidos, precios por cliente y tu ganancia semanal.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F1EEE2",
+  "theme_color": "#1F4D3A",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

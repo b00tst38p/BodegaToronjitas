@@ -1,0 +1,2836 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Bodega Toronjitas — Pedidos y Ganancias</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1F4D3A">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F1EEE2;
+    --paper-2:#FFFDF6;
+    --ink:#20301F;
+    --ink-soft:#5B6355;
+    --green:#1F4D3A;
+    --green-dark:#132F22;
+    --mustard:#E3A73E;
+    --mustard-dark:#8A5E13;
+    --brick:#B54B3A;
+    --brick-dark:#7A2E22;
+    --line:#D9D2BC;
+    --line-strong:#B9AE8E;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-tap-highlight-color:transparent;
+  }
+  #app{
+    max-width:460px;
+    margin:0 auto;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    position:relative;
+    padding-bottom:78px;
+  }
+  h1,h2,h3{font-family:'Big Shoulders Display',sans-serif; margin:0; letter-spacing:0.3px;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  header.topbar{
+    background:var(--green);
+    color:var(--paper-2);
+    padding:18px 20px 22px;
+    border-bottom:4px solid var(--green-dark);
+    position:relative;
+  }
+  header.topbar h1{font-size:26px; font-weight:800; line-height:1;}
+  header.topbar .sub{font-size:13px; color:#CFE0D6; margin-top:4px;}
+  header.topbar .stripe{
+    position:absolute; left:0; right:0; bottom:-4px; height:4px;
+    background:repeating-linear-gradient(90deg, var(--mustard) 0 14px, var(--green-dark) 14px 28px);
+  }
+  main{flex:1; padding:16px 16px 20px;}
+  .card{
+    background:var(--paper-2);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:16px;
+    margin-bottom:14px;
+  }
+  .card-title{font-size:12px; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-soft); font-weight:600; margin-bottom:10px;}
+  button{font-family:'Inter',sans-serif; cursor:pointer;}
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    background:var(--green); color:#fff; border:none; border-radius:10px;
+    padding:12px 16px; font-size:15px; font-weight:600; width:100%;
+  }
+  .btn:active{transform:scale(0.98);}
+  .btn.secondary{background:var(--paper-2); color:var(--green); border:1.5px solid var(--green);}
+  .btn.mustard{background:var(--mustard); color:#3A2705;}
+  .btn.brick{background:var(--brick); color:#fff;}
+  .btn.ghost{background:transparent; color:var(--ink-soft); border:1px dashed var(--line-strong);}
+  .btn.small{padding:8px 12px; font-size:13px; width:auto;}
+  .row{display:flex; align-items:center; gap:10px;}
+  .row.between{justify-content:space-between;}
+  input[type=text], input[type=number], input[type=email], input[type=password], input[type=date], select{
+    font-family:'Inter',sans-serif;
+    background:#fff; border:1px solid var(--line-strong); border-radius:8px;
+    padding:10px 12px; font-size:15px; color:var(--ink); width:100%;
+  }
+  input[type=number]{font-family:'IBM Plex Mono',monospace;}
+  label.field-label{font-size:12px; color:var(--ink-soft); font-weight:600; margin-bottom:5px; display:block;}
+  .field{margin-bottom:12px;}
+  .client-item, .product-item, .order-item{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 4px; border-bottom:1px solid var(--line);
+  }
+  .client-item:last-child, .product-item:last-child, .order-item:last-child{border-bottom:none;}
+  .client-name{font-weight:600; font-size:15px;}
+  .muted{color:var(--ink-soft); font-size:13px;}
+  .price-tag{font-family:'IBM Plex Mono',monospace; font-weight:600; color:var(--mustard-dark);}
+  .cost-tag{font-family:'IBM Plex Mono',monospace; font-weight:600; color:var(--brick);}
+  .profit-tag{font-family:'IBM Plex Mono',monospace; font-weight:700; color:var(--green);}
+  .qty-pill{
+    background:var(--green); color:#fff; font-family:'IBM Plex Mono',monospace;
+    font-size:12px; font-weight:600; border-radius:20px; padding:2px 9px; min-width:20px; text-align:center;
+  }
+  .empty{text-align:center; padding:30px 10px; color:var(--ink-soft);}
+  .empty i{display:block; font-size:34px; margin-bottom:10px; opacity:0.5;}
+  nav.tabbar{
+    position:fixed; bottom:0; left:0; right:0;
+    max-width:460px; margin:0 auto;
+    background:var(--green-dark); border-top:2px solid var(--green);
+    display:flex;
+  }
+  nav.tabbar button{
+    flex:1; background:none; border:none; color:#8FA697; padding:10px 4px 8px;
+    display:flex; flex-direction:column; align-items:center; gap:3px; font-size:11px; font-weight:600;
+  }
+  nav.tabbar button.active{color:var(--mustard);}
+  nav.tabbar .icon{font-size:19px; line-height:1;}
+  .overlay{
+    position:fixed; inset:0; background:rgba(19,47,34,0.55); display:flex; align-items:flex-end; justify-content:center; z-index:50;
+  }
+  .sheet{
+    background:var(--paper-2); width:100%; max-width:460px; border-radius:18px 18px 0 0;
+    padding:20px 18px 26px; max-height:85vh; overflow-y:auto;
+  }
+  .sheet-handle{width:40px; height:4px; background:var(--line-strong); border-radius:2px; margin:0 auto 16px;}
+  .stepper{display:flex; align-items:center; gap:10px;}
+  .stepper button{
+    width:34px; height:34px; border-radius:8px; border:1px solid var(--line-strong); background:#fff;
+    font-size:17px; font-weight:700; color:var(--green);
+  }
+  .stepper .qty-display{min-width:28px; text-align:center; font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:16px;}
+  .stepper .qty-input{width:64px; text-align:center; font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:16px; padding:8px 4px;}
+  .receipt{
+    background:var(--paper-2); border:1px solid var(--line); border-radius:6px; padding:18px 16px;
+    font-family:'IBM Plex Mono',monospace; font-size:13px; position:relative;
+    background-image: radial-gradient(circle, var(--paper) 4px, transparent 4.5px);
+    background-size: 14px 14px; background-position: -7px -7px, top left;
+  }
+  .receipt-inner{background:var(--paper-2);}
+  .receipt .dashed{border-top:1px dashed var(--line-strong); margin:10px 0;}
+  .receipt .rline{display:flex; justify-content:space-between; padding:3px 0;}
+  .receipt-simple{
+    background:#fff; border:1px solid var(--line); border-radius:10px; padding:22px 20px;
+  }
+  .logo-slot{
+    width:64px; height:64px; border-radius:8px; margin:0 auto 14px;
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
+    border:1.5px dashed var(--line-strong); color:var(--ink-soft); font-size:10px;
+    text-align:center; line-height:1.3; cursor:pointer;
+  }
+  .logo-slot img{width:100%; height:100%; object-fit:contain;}
+  .logo-change{display:block; text-align:center; font-size:11px; color:var(--ink-soft); margin:-6px 0 14px; cursor:pointer; text-decoration:underline;}
+  .rn-title{font-family:'Inter',sans-serif; font-size:17px; font-weight:600; text-align:center; letter-spacing:0.02em;}
+  .rn-brand{font-family:'Inter',sans-serif; font-size:12px; font-weight:700; text-align:center; letter-spacing:0.08em; color:var(--green); margin-bottom:10px;}
+  .rn-date{text-align:center; color:var(--ink-soft); font-size:12px; margin-top:2px;}
+  .rn-hr{border:none; border-top:1px solid var(--line); margin:16px 0;}
+  .rn-client{font-size:14px; text-align:center; margin-bottom:2px;}
+  .rn-item{display:flex; justify-content:space-between; padding:7px 0; font-size:14px;}
+  .rn-item .rn-qty{color:var(--ink-soft); font-size:12px; margin-left:4px;}
+  .rn-item-row{padding:7px 0; border-bottom:1px dotted var(--line);}
+  .rn-item-row:last-of-type{border-bottom:none;}
+  .rn-item-main{display:flex; justify-content:space-between; font-size:14px;}
+  .rn-item-sub{color:var(--ink-soft); font-size:11px; margin-top:2px;}
+  .rn-total{display:flex; justify-content:space-between; padding-top:12px; margin-top:6px; border-top:1px solid var(--ink); font-weight:600; font-size:16px;}
+  .filter-wrap{position:relative; margin-bottom:12px;}
+  .filter-wrap input{padding-left:34px; padding-right:34px;}
+  .filter-wrap .fi{position:absolute; left:11px; top:50%; transform:translateY(-50%); color:var(--ink-soft); font-size:14px;}
+  .filter-clear{
+    position:absolute; right:6px; top:50%; transform:translateY(-50%);
+    width:24px; height:24px; border-radius:50%; border:none; background:var(--paper);
+    color:var(--ink-soft); font-size:12px; align-items:center; justify-content:center; padding:0;
+  }
+  .filter-clear:active{background:var(--line);}
+  .tab-toggle{display:flex; gap:8px; margin-bottom:14px;}
+  .tab-toggle button{flex:1; padding:9px; border-radius:8px; border:1px solid var(--line-strong); background:#fff; font-size:13px; font-weight:600; color:var(--ink-soft);}
+  .tab-toggle button.active{background:var(--green); color:#fff; border-color:var(--green);}
+  .week-nav{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}
+  .week-nav button{background:var(--paper-2); border:1px solid var(--line-strong); border-radius:8px; width:38px; height:38px; font-size:16px; color:var(--green); font-weight:700;}
+  .week-label{font-family:'Big Shoulders Display',sans-serif; font-size:18px; font-weight:700;}
+  .metric-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;}
+  .metric{background:var(--paper); border-radius:10px; padding:12px;}
+  .metric .lbl{font-size:11px; color:var(--ink-soft); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;}
+  .metric .val{font-family:'IBM Plex Mono',monospace; font-size:19px; font-weight:700; margin-top:3px;}
+  .metric.ganancia{background:var(--green); }
+  .metric.ganancia .lbl{color:#BEDBC9;}
+  .metric.ganancia .val{color:#fff;}
+  .badge{font-size:10px; font-weight:700; text-transform:uppercase; padding:2px 7px; border-radius:20px; letter-spacing:0.03em;}
+  .badge.green{background:#DCEBD9; color:var(--green);}
+  .badge.amber{background:#F6E7C4; color:#7A5410;}
+  .badge.red{background:#F3D6D0; color:var(--brick-dark);}
+  .badge.gray{background:#E6E2D3; color:var(--ink-soft);}
+  .badges{display:flex; flex-wrap:wrap; gap:6px; margin-top:5px;}
+  .kv{display:flex; justify-content:space-between; align-items:baseline; gap:10px; padding:5px 0; font-size:14px;}
+  .kv .k{color:var(--ink-soft);}
+  .kv .v{font-family:'IBM Plex Mono',monospace; font-weight:600; white-space:nowrap;}
+  .kv.total{border-top:1px solid var(--line-strong); margin-top:5px; padding-top:9px; font-weight:700;}
+  .kv.total .k{color:var(--ink);}
+  .pos{color:var(--green);}
+  .neg{color:var(--brick);}
+  .hint{font-size:12px; color:var(--ink-soft); margin-top:6px; line-height:1.4;}
+  .check-row{display:flex; gap:8px; align-items:flex-start; padding:5px 0; font-size:13px; line-height:1.35;}
+  .check-row .ic{width:18px; text-align:center; flex-shrink:0;}
+  .balance-hero{background:var(--green); color:#fff; border-radius:var(--radius); padding:18px 16px; margin-bottom:14px;}
+  .balance-hero .lbl{font-size:12px; text-transform:uppercase; letter-spacing:0.08em; color:#BEDBC9; font-weight:600;}
+  .balance-hero .val{font-family:'IBM Plex Mono',monospace; font-size:32px; font-weight:700; margin-top:4px;}
+  .btn-row{display:flex; gap:10px; margin-top:10px;}
+  .btn-row .btn{flex:1;}
+  .top-row{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+  .debt-pill{background:var(--mustard); color:#3A2705; border:none; border-radius:12px; padding:6px 11px; text-align:right; line-height:1.15; flex-shrink:0;}
+  .debt-pill span{display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;}
+  .debt-pill b{font-family:'IBM Plex Mono',monospace; font-size:15px;}
+  .offline-banner{background:#F6E7C4; color:#7A5410; font-size:12px; font-weight:600; text-align:center; padding:6px 10px;}
+  .auth-msg{text-align:center; padding:50px 20px; color:var(--ink-soft);}
+  .uidbox{background:var(--paper); border:1px dashed var(--line-strong); border-radius:8px; padding:10px; word-break:break-all; font-size:13px; margin:8px 0;}
+  .alloc-row{display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--line);}
+  .alloc-row:last-child{border-bottom:none;}
+  .alloc-amt{display:flex; align-items:center; gap:6px; flex-shrink:0;}
+  .alloc-amt input{width:96px; text-align:right;}
+  a{color:inherit;}
+  .toast{
+    position:fixed; bottom:90px; left:50%; transform:translateX(-50%);
+    background:var(--green-dark); color:#fff; padding:10px 18px; border-radius:30px; font-size:13px; font-weight:600;
+    z-index:100; box-shadow:0 4px 14px rgba(0,0,0,0.25);
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+// ---------- ESTADO ----------
+let state = {
+  auth: {status:'loading', user:null, error:'', email:''},   // loading | signedOut | noProfile | syncing | ready | error
+  role: null,
+  profileName: '',
+  users: {},
+  data: { clients: [], products: {}, orders: [], drafts: {}, cash: {initial:0, initialSet:false, payrolls:{}}, logo: null },
+  view: 'pedido',
+  orderClientId: null,
+  clienteDetalleId: null,
+  historyOpenId: null,
+  historyFilter: 'todos',
+  detailBack: 'historial',
+  weekOffset: 0,
+  modal: null,
+  payFlow: null,
+  payBack: 'cobranza',
+  confirmCloseId: null,
+  confirmImport: false,
+  pendingRender: false
+};
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+function fmt(n){
+  n = Math.round((n + Number.EPSILON) * 100) / 100;
+  return n.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+// El aviso se dibuja directo en el DOM (sin re-renderizar la pantalla),
+// así no se borra lo que el usuario ya escribió en un formulario abierto.
+let toastTimer = null;
+function showToast(msg){
+  let el = document.getElementById('toast-el');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'toast-el';
+    el.className = 'toast';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.display = 'block';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{ el.style.display = 'none'; }, 2600);
+}
+
+// ---------- SESIÓN Y ROLES ----------
+function myUid(){ return state.auth.user ? state.auth.user.uid : null; }
+function isAdmin(){ return state.role === 'admin'; }
+const ADMIN_VIEWS = ['pedido','nota','clientes','cliente-detalle','corte'];
+function canView(v){ return isAdmin() || !ADMIN_VIEWS.includes(v); }
+function userName(id){ const u = state.users[id]; return u && u.name ? u.name : ''; }
+
+// ---------- NUBE (Firestore) ----------
+// La app trabaja con state.data en memoria. Cada vez que algo cambia se llama a
+// saveData(), que compara contra lo último sincronizado y sube solo las diferencias.
+// Los listeners de Firestore reconstruyen state.data cuando otro dispositivo cambia algo.
+let cloud = null;
+let unsubs = [];
+let lastSynced = {};
+let authToken = 0;
+const raw = {users:[], clients:[], products:[], orders:[], payments:[], purchases:[], movs:[], closures:[], config:{main:null, logo:null}};
+const RAW_KEY = {users:'users', clients:'clients', products:'products', orders:'orders', payments:'payments', purchases:'purchases', movs:'movs', weekClosures:'closures'};
+const REQUIRED_LOADS = ['users','clients','products','orders','payments','purchases','movs','weekClosures','config-main','config-logo'];
+const loadedSet = new Set();
+
+function resetRaw(){
+  raw.users = []; raw.clients = []; raw.products = []; raw.orders = [];
+  raw.payments = []; raw.purchases = []; raw.movs = []; raw.closures = [];
+  raw.config = {main:null, logo:null};
+  loadedSet.clear();
+}
+
+function stable(v){
+  if(Array.isArray(v)) return '[' + v.map(stable).join(',') + ']';
+  if(v && typeof v === 'object') return '{' + Object.keys(v).sort().map(k=> JSON.stringify(k) + ':' + stable(v[k])).join(',') + '}';
+  return JSON.stringify(v === undefined ? null : v);
+}
+function clean(o){ return JSON.parse(JSON.stringify(o)); }
+
+function byName(a,b){ return String(a.name||'').localeCompare(String(b.name||''), 'es'); }
+function groupByOrder(arr){
+  const m = {};
+  arr.forEach(r=>{ (m[r.orderId] = m[r.orderId] || []).push({...r}); });
+  return m;
+}
+
+// state.data -> documentos de Firestore {"col/id": {col,id,data}}
+function flattenState(){
+  const out = {};
+  const put = (col, id, data)=>{ out[col + '/' + id] = {col, id, data: clean(data)}; };
+  const me = myUid();
+  const d = state.data;
+  d.clients.forEach(c=>{ const {id, ...rest} = c; put('clients', id, rest); });
+  Object.keys(d.products || {}).forEach(clientId=>{
+    (d.products[clientId] || []).forEach(p=>{ const {id, ...rest} = p; put('products', id, {...rest, clientId}); });
+  });
+  d.orders.forEach(o=>{
+    ensureOrderFinance(o);
+    if(!o.createdBy && me) o.createdBy = me;
+    const {id, payments, purchases, movs, ...core} = o;
+    put('orders', id, core);
+    [['payments', payments], ['purchases', purchases], ['movs', movs]].forEach(([col, list])=>{
+      list.forEach(r=>{
+        if(!r.createdBy && me) r.createdBy = me;
+        r.orderId = id;
+        const {id:rid, ...rest} = r;
+        put(col, rid, rest);
+      });
+    });
+  });
+  Object.keys(d.cash.payrolls || {}).forEach(k=>{
+    const v = d.cash.payrolls[k];
+    put('weekClosures', k, {amount: Number(v.amount)||0, date: v.date, closedBy: v.closedBy || me || ''});
+  });
+  put('config', 'main', {initial: Number(d.cash.initial)||0, initialSet: !!d.cash.initialSet});
+  if(d.logo) put('config', 'logo', {data: d.logo});
+  return out;
+}
+
+// Documentos crudos de Firestore -> state.data
+function rebuildFromRaw(){
+  const d = state.data;
+  d.clients = raw.clients.map(c=>({...c})).sort(byName);
+  const prods = {};
+  raw.products.forEach(p=>{ (prods[p.clientId] = prods[p.clientId] || []).push({...p}); });
+  Object.keys(prods).forEach(k=> prods[k].sort(byName));
+  d.products = prods;
+  const pay = groupByOrder(raw.payments), pur = groupByOrder(raw.purchases), mov = groupByOrder(raw.movs);
+  d.orders = raw.orders
+    .map(o=>({...o, payments: pay[o.id] || [], purchases: pur[o.id] || [], movs: mov[o.id] || []}))
+    .sort((a,b)=> new Date(a.date) - new Date(b.date));
+  const m = raw.config.main;
+  d.cash = {initial: m ? (Number(m.initial)||0) : 0, initialSet: !!(m && m.initialSet), payrolls: {}};
+  raw.closures.forEach(c=>{ d.cash.payrolls[c.id] = {amount: Number(c.amount)||0, date: c.date, closedBy: c.closedBy}; });
+  d.logo = (raw.config.logo && raw.config.logo.data) ? raw.config.logo.data : null;
+  const users = {};
+  raw.users.forEach(u=>{ users[u.id] = {name: u.name, role: u.role}; });
+  state.users = users;
+  if(!d.drafts) d.drafts = {};
+  // Lo que se ve en pantalla es exactamente lo que ya está en el servidor
+  const flat = flattenState();
+  lastSynced = {};
+  Object.keys(flat).forEach(k=>{ lastSynced[k] = stable(flat[k].data); });
+}
+
+function rawUpsert(col, id, data){
+  if(col === 'config'){ raw.config[id] = {id, ...data}; return; }
+  const arr = raw[RAW_KEY[col]];
+  if(!arr) return;
+  const obj = {id, ...data};
+  const i = arr.findIndex(x=>x.id === id);
+  if(i >= 0) arr[i] = obj; else arr.push(obj);
+}
+function rawRemove(col, id){
+  if(col === 'config'){ raw.config[id] = null; return; }
+  const key = RAW_KEY[col];
+  if(key) raw[key] = raw[key].filter(x=>x.id !== id);
+}
+
+function applyOpLocally(op){
+  const key = op.col + '/' + op.id;
+  if(op.op === 'delete'){ delete lastSynced[key]; rawRemove(op.col, op.id); }
+  else { lastSynced[key] = stable(op.data); rawUpsert(op.col, op.id, op.data); }
+}
+
+function onWriteError(err){
+  console.error('Error al guardar en la nube', err);
+  const denied = err && err.code === 'permission-denied';
+  showToast(denied ? 'No tienes permiso para guardar este cambio.' : 'No se pudo guardar el cambio. Revisa tu conexión.');
+  setTimeout(()=>scheduleRender(), 400);
+}
+
+function saveDraftsLocal(){
+  const id = myUid();
+  if(!id) return;
+  try{ localStorage.setItem('bodega-drafts-' + id, JSON.stringify(state.data.drafts || {})); }catch(e){}
+}
+function loadDraftsLocal(){
+  const id = myUid();
+  let d = {};
+  try{ d = JSON.parse(localStorage.getItem('bodega-drafts-' + id) || '{}') || {}; }catch(e){}
+  state.data.drafts = d;
+}
+function cacheProfile(id, profile){ try{ localStorage.setItem('bodega-profile-' + id, JSON.stringify(profile)); }catch(e){} }
+function cachedProfile(id){ try{ return JSON.parse(localStorage.getItem('bodega-profile-' + id) || 'null'); }catch(e){ return null; } }
+
+// Compara state.data contra lo último sincronizado y sube solo lo que cambió
+function saveData(){
+  saveDraftsLocal();
+  if(state.auth.status !== 'ready' || !cloud) return;
+  const flat = flattenState();
+  const ops = [];
+  Object.keys(flat).forEach(k=>{
+    const f = flat[k];
+    if(lastSynced[k] !== stable(f.data)) ops.push({op:'set', col:f.col, id:f.id, data:f.data});
+  });
+  Object.keys(lastSynced).forEach(k=>{
+    if(!(k in flat)){
+      const i = k.indexOf('/');
+      ops.push({op:'delete', col:k.slice(0, i), id:k.slice(i + 1)});
+    }
+  });
+  if(!ops.length) return;
+  ops.forEach(applyOpLocally);
+  for(let i = 0; i < ops.length; i += 400){
+    cloud.batch(ops.slice(i, i + 400)).catch(onWriteError);
+  }
+}
+
+function stopListeners(){
+  unsubs.forEach(u=>{ try{ u && u(); }catch(e){} });
+  unsubs = [];
+}
+
+function onListenError(name, err){
+  console.error('Error al leer ' + name, err);
+  const code = (err && err.code) || 'error';
+  state.auth.status = 'error';
+  state.auth.error = 'No se pudo leer "' + name + '" (' + code + '). ' +
+    (code === 'permission-denied' ? 'Verifica que tu perfil exista en la colección users y que las reglas de Firestore estén actualizadas.' : 'Revisa tu conexión.');
+  render();
+}
+
+function onRawChanged(name){
+  loadedSet.add(name);
+  if(loadedSet.size < REQUIRED_LOADS.length) return;
+  rebuildFromRaw();
+  if(state.auth.status === 'syncing'){ state.auth.status = 'ready'; render(); }
+  else scheduleRender();
+}
+
+function startListeners(){
+  Object.keys(RAW_KEY).forEach(col=>{
+    unsubs.push(cloud.listen(col, docs=>{ raw[RAW_KEY[col]] = docs; onRawChanged(col); }, err=>onListenError(col, err)));
+  });
+  unsubs.push(cloud.listenDoc('config', 'main', d=>{ raw.config.main = d; onRawChanged('config-main'); }, err=>onListenError('config', err)));
+  unsubs.push(cloud.listenDoc('config', 'logo', d=>{ raw.config.logo = d; onRawChanged('config-logo'); }, err=>onListenError('config', err)));
+}
+
+function isTypingNow(){
+  const a = document.activeElement;
+  return !!(a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.tagName === 'SELECT'));
+}
+
+// Los cambios que llegan de otro dispositivo no deben borrar lo que alguien está escribiendo
+function scheduleRender(){
+  if(state.modal || isTypingNow()){ state.pendingRender = true; return; }
+  render();
+}
+
+async function onAuthChanged(user){
+  const token = ++authToken;
+  stopListeners();
+  resetRaw();
+  lastSynced = {};
+  state.data = {clients:[], products:{}, orders:[], drafts:{}, cash:{initial:0, initialSet:false, payrolls:{}}, logo:null};
+  state.users = {};
+  state.role = null;
+  state.profileName = '';
+  state.modal = null;
+  if(!user){
+    state.auth = {status:'signedOut', user:null, error: state.auth.error || '', email: state.auth.email || ''};
+    render();
+    return;
+  }
+  state.auth = {status:'loading', user, error:'', email: user.email || ''};
+  render();
+  let profile = null;
+  try{
+    profile = await cloud.getProfile(user.uid);
+    if(profile) cacheProfile(user.uid, profile);
+  }catch(e){
+    profile = cachedProfile(user.uid);
+    if(!profile){
+      if(token !== authToken) return;
+      state.auth.status = 'error';
+      state.auth.error = 'No se pudo leer tu perfil (' + ((e && e.code) || (e && e.message) || 'error') + '). Revisa tu conexión.';
+      render();
+      return;
+    }
+  }
+  if(token !== authToken) return;
+  if(!profile || !['admin','compras'].includes(profile.role)){
+    state.auth.status = 'noProfile';
+    render();
+    return;
+  }
+  state.role = profile.role;
+  state.profileName = profile.name || user.email || '';
+  loadDraftsLocal();
+  state.view = isAdmin() ? 'pedido' : 'historial';
+  state.auth.status = 'syncing';
+  startListeners();
+  render();
+}
+
+function startApp(c){
+  cloud = c;
+  cloud.onAuth(onAuthChanged);
+}
+
+function failApp(err){
+  state.auth = {status:'error', user:null, error:'No se pudieron cargar los servicios en línea. Verifica tu conexión e inténtalo de nuevo. (' + ((err && (err.message || err.code)) || err) + ')', email:'', reload:true};
+  render();
+}
+
+function authErrorText(err){
+  const c = (err && err.code) || '';
+  if(['auth/invalid-credential','auth/wrong-password','auth/user-not-found','auth/invalid-email'].includes(c)) return 'Correo o contraseña incorrectos.';
+  if(c === 'auth/too-many-requests') return 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.';
+  if(c === 'auth/network-request-failed') return 'Sin conexión. Conéctate a internet para iniciar sesión.';
+  if(c === 'auth/user-disabled') return 'Esta cuenta está deshabilitada.';
+  return 'No se pudo iniciar sesión (' + (c || (err && err.message) || 'error') + ').';
+}
+
+// ---------- LOGO (se reduce de tamaño para que quepa en la base de datos) ----------
+function onLogoSelected(e){
+  const file = e.target.files && e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = async function(ev){
+    let out = ev.target.result;
+    try{
+      const img = await loadImage(ev.target.result);
+      const max = 320;
+      const ratio = Math.min(1, max / img.width, max / img.height);
+      const c = document.createElement('canvas');
+      c.width = Math.max(1, Math.round(img.width * ratio));
+      c.height = Math.max(1, Math.round(img.height * ratio));
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      out = c.toDataURL('image/png');
+      if(out.length > 700000) out = c.toDataURL('image/jpeg', 0.8);
+    }catch(err){ /* se usa la imagen original */ }
+    if(out.length > 900000){ showToast('La imagen del logo es muy grande. Usa una más pequeña.'); return; }
+    state.data.logo = out;
+    saveData();
+    render();
+  };
+  reader.readAsDataURL(file);
+}
+
+// ---------- RESPALDO E IMPORTACIÓN ----------
+function legacyData(){
+  try{
+    if(localStorage.getItem('bodega-legacy-imported')) return null;
+    const rawStr = localStorage.getItem('abarrotes:abarrotes-data');
+    if(!rawStr) return null;
+    const obj = JSON.parse(rawStr);
+    if(!obj || (!(obj.orders || []).length && !(obj.clients || []).length)) return null;
+    return obj;
+  }catch(e){ return null; }
+}
+
+function importLegacy(legacy){
+  const d = state.data;
+  (legacy.clients || []).forEach(c=>{ if(!d.clients.some(x=>x.id === c.id)) d.clients.push({id:c.id, name:c.name}); });
+  Object.keys(legacy.products || {}).forEach(cid=>{
+    const cur = d.products[cid] = d.products[cid] || [];
+    legacy.products[cid].forEach(p=>{ if(!cur.some(x=>x.id === p.id)) cur.push({...p}); });
+  });
+  (legacy.orders || []).forEach(o=>{
+    if(d.orders.some(x=>x.id === o.id)) return;
+    const copy = JSON.parse(JSON.stringify(o));
+    ensureOrderFinance(copy);
+    d.orders.push(copy);
+  });
+  if(legacy.cash){
+    if(!d.cash.initialSet && legacy.cash.initialSet){ d.cash.initial = Number(legacy.cash.initial) || 0; d.cash.initialSet = true; }
+    Object.keys(legacy.cash.payrolls || {}).forEach(k=>{ if(!d.cash.payrolls[k]) d.cash.payrolls[k] = legacy.cash.payrolls[k]; });
+  }
+  try{
+    const lg = localStorage.getItem('abarrotes:abarrotes-logo');
+    if(lg && !d.logo && lg.length < 900000) d.logo = lg;
+  }catch(e){}
+  saveData();
+  try{ localStorage.setItem('bodega-legacy-imported', '1'); }catch(e){}
+}
+
+function exportBackup(){
+  const {drafts, ...rest} = state.data;
+  const blob = new Blob([JSON.stringify({exportadoEl: new Date().toISOString(), datos: rest}, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'respaldo-bodega-' + localDateStr(new Date()) + '.json';
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+}
+
+function getClient(id){ return state.data.clients.find(c=>c.id===id); }
+function getProducts(clientId){ return state.data.products[clientId] || []; }
+
+function getDraft(clientId){
+  if(!state.data.drafts) state.data.drafts = {};
+  if(!state.data.drafts[clientId]) state.data.drafts[clientId] = {};
+  return state.data.drafts[clientId];
+}
+
+function draftHasItems(clientId){
+  const d = state.data.drafts && state.data.drafts[clientId];
+  if(!d) return false;
+  return Object.values(d).some(it=>it.qty>0);
+}
+
+function getSalesSortedProducts(clientId){
+  const salesMap = {};
+  state.data.orders.forEach(o=>{
+    if(o.clientId!==clientId) return;
+    o.items.forEach(it=>{
+      salesMap[it.productId] = (salesMap[it.productId]||0) + it.qty;
+    });
+  });
+  const products = getProducts(clientId);
+  return [...products].sort((a,b)=> (salesMap[b.id]||0) - (salesMap[a.id]||0));
+}
+
+function makeFolio(dateIso){
+  const d = new Date(dateIso);
+  const pad = n => String(n).padStart(2,'0');
+  const yy = String(d.getFullYear()).slice(-2);
+  const mm = pad(d.getMonth()+1);
+  const dd = pad(d.getDate());
+  const hh = pad(d.getHours());
+  const mi = pad(d.getMinutes());
+  const ss = pad(d.getSeconds());
+  return `${yy}${mm}${dd}-${hh}${mi}${ss}`;
+}
+
+function getOrderFolio(order){
+  return order.folio || makeFolio(order.updatedAt || order.date);
+}
+
+function weekRange(offset){
+  const now = new Date();
+  const day = now.getDay();
+  const mondayOffset = (day === 0 ? -6 : 1) - day;
+  const monday = new Date(now);
+  monday.setHours(0,0,0,0);
+  monday.setDate(now.getDate() + mondayOffset + offset*7);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23,59,59,999);
+  return {start:monday, end:sunday};
+}
+
+function fmtDateShort(d){
+  return d.toLocaleDateString('es-MX', {day:'numeric', month:'short'});
+}
+
+function ordersInRange(start, end){
+  return state.data.orders.filter(o=>{
+    const d = new Date(o.date);
+    return d >= start && d <= end;
+  });
+}
+
+function orderTotals(order){
+  let total=0, cost=0;
+  order.items.forEach(it=>{
+    total += it.price * it.qty;
+    cost += it.cost * it.qty;
+  });
+  return {total, cost, profit: total-cost};
+}
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+// ---------- FINANZAS: cobros, compras y caja ----------
+const EPS = 0.005;
+
+function round2(n){ return Math.round((n + Number.EPSILON) * 100) / 100; }
+
+function sumAmounts(list){
+  return (list||[]).reduce((s,x)=> s + (Number(x.amount)||0), 0);
+}
+
+function money(n){ return (n < 0 ? '−$' : '$') + fmt(Math.abs(n)); }
+
+function localDateStr(d){
+  const pad = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+
+function isoToDateInput(iso){ return localDateStr(new Date(iso)); }
+
+function dateInputToIso(str, originalIso){
+  if(!str) return new Date().toISOString();
+  if(originalIso && isoToDateInput(originalIso) === str) return originalIso;
+  const [y, m, d] = str.split('-').map(Number);
+  const sel = new Date(y, m-1, d);
+  const now = new Date();
+  if(sel.toDateString() === now.toDateString()) return now.toISOString();
+  sel.setHours(12, 0, 0, 0);
+  return sel.toISOString();
+}
+
+function ensureOrderFinance(o){
+  if(!o.payments) o.payments = [];
+  if(!o.purchases) o.purchases = [];
+  if(!o.movs) o.movs = [];
+}
+
+// Estado financiero de un pedido: cobros, notas de compra y caja
+function orderFinance(o){
+  const t = orderTotals(o);
+  const paid = sumAmounts(o.payments);
+  const purchases = sumAmounts(o.purchases);
+  const movs = o.movs || [];
+  const salidas = sumAmounts(movs.filter(m=>m.type==='salida'));
+  const sobrantes = sumAmounts(movs.filter(m=>m.type==='sobrante'));
+  const pending = t.total - paid;
+  const payState = paid <= EPS ? 'pendiente' : (pending > EPS ? 'parcial' : 'pagado');
+  const purchaseDiff = purchases - t.cost;
+  const purchaseState = (o.purchases||[]).length === 0 ? 'sin-registro' : (Math.abs(purchaseDiff) < EPS ? 'cuadra' : 'diferencia');
+  const expectedSobrante = salidas - purchases;
+  const cashDiff = sobrantes - expectedSobrante;
+  const hasCash = salidas > EPS || sobrantes > EPS;
+  const cashState = !hasCash ? 'sin-registro' : (Math.abs(cashDiff) < EPS ? 'cuadra' : 'diferencia');
+  const settled = payState === 'pagado' && purchaseState === 'cuadra' && cashState !== 'diferencia';
+  return {
+    total:t.total, cost:t.cost, profit:t.profit,
+    paid, pending, payState,
+    purchases, purchaseDiff, purchaseState,
+    salidas, sobrantes, expectedSobrante, cashDiff, cashState, hasCash,
+    settled, realProfit: paid - purchases
+  };
+}
+
+function clientPending(clientId){
+  let s = 0;
+  state.data.orders.forEach(o=>{
+    if(o.clientId !== clientId) return;
+    const f = orderFinance(o);
+    if(f.pending > EPS) s += f.pending;
+  });
+  return s;
+}
+
+function totalDebt(){
+  let s = 0;
+  state.data.orders.forEach(o=>{ const f = orderFinance(o); if(f.pending > EPS) s += f.pending; });
+  return s;
+}
+
+// Notas con saldo pendiente de un cliente, de la más antigua a la más reciente
+function payableOrders(clientId){
+  return state.data.orders
+    .filter(o=> o.clientId === clientId && (isAdmin() || !o.closed))
+    .map(o=>({o, f: orderFinance(o)}))
+    .filter(x=> x.f.pending > EPS)
+    .sort((a,b)=> new Date(a.o.date) - new Date(b.o.date));
+}
+
+// Reparte un pago entre las notas, de la más antigua a la más reciente
+function autoAllocate(list, total){
+  let rest = round2(total);
+  const alloc = {};
+  for(const {o, f} of list){
+    if(rest <= EPS) break;
+    const a = Math.min(round2(f.pending), rest);
+    if(a > EPS){ alloc[o.id] = round2(a); rest = round2(rest - a); }
+  }
+  return {alloc, rest};
+}
+
+// Libro de caja: salidas, sobrantes devueltos y cobros de todos los pedidos
+function ledgerEntries(){
+  const list = [];
+  state.data.orders.forEach(o=>{
+    (o.movs||[]).forEach(m=> list.push({id:m.id, date:m.date, type:m.type, amount:Number(m.amount)||0, orderId:o.id}));
+    (o.payments||[]).forEach(p=> list.push({id:p.id, date:p.date, type:'cobro', amount:Number(p.amount)||0, orderId:o.id}));
+  });
+  return list;
+}
+
+function entryEffect(e){ return e.type === 'salida' ? -e.amount : e.amount; }
+
+function cashBase(){ return Number(state.data.cash.initial) || 0; }
+
+// Suma de retiros para empleados de las semanas anteriores a beforeKey (o todos)
+function totalPayrolls(beforeKey){
+  let s = 0;
+  Object.entries(state.data.cash.payrolls || {}).forEach(([k, v])=>{
+    if(beforeKey === undefined || k < beforeKey) s += Number(v.amount) || 0;
+  });
+  return s;
+}
+
+function currentBalance(){
+  return cashBase() + ledgerEntries().reduce((s,e)=> s + entryEffect(e), 0) - totalPayrolls();
+}
+
+function balanceBeforeWeek(start){
+  return cashBase()
+    + ledgerEntries().filter(e=> new Date(e.date) < start).reduce((s,e)=> s + entryEffect(e), 0)
+    - totalPayrolls(localDateStr(start));
+}
+
+function weekSummary(offset){
+  const {start, end} = weekRange(offset);
+  const key = localDateStr(start);
+  const entries = ledgerEntries().filter(e=>{ const d = new Date(e.date); return d >= start && d <= end; });
+  const sumType = t => entries.filter(e=>e.type===t).reduce((s,e)=> s + e.amount, 0);
+  const cobros = sumType('cobro');
+  const sobrantes = sumType('sobrante');
+  const salidas = sumType('salida');
+  const opening = balanceBeforeWeek(start);
+  const closingBefore = opening + cobros + sobrantes - salidas;
+  const payroll = (state.data.cash.payrolls || {})[key] || null;
+  const payrollAmount = payroll ? (Number(payroll.amount) || 0) : 0;
+  let comprasReg = 0;
+  state.data.orders.forEach(o=> (o.purchases||[]).forEach(p=>{
+    const d = new Date(p.date);
+    if(d >= start && d <= end) comprasReg += Number(p.amount) || 0;
+  }));
+  return {start, end, key, opening, cobros, sobrantes, salidas, closingBefore, payroll, payrollAmount, nextOpening: closingBefore - payrollAmount, comprasReg};
+}
+
+function badge(text, kind){ return `<span class="badge ${kind}">${escapeHtml(text)}</span>`; }
+
+function payBadge(f){
+  if(f.payState === 'pagado') return badge('Pagado', 'green');
+  if(f.payState === 'parcial') return badge('Debe ' + money(f.pending), 'amber');
+  return badge('Sin pago', 'red');
+}
+
+function purchaseBadge(f){
+  if(f.purchaseState === 'cuadra') return badge('Compras ✓', 'green');
+  if(f.purchaseState === 'diferencia') return badge('Compras ≠', 'amber');
+  return badge('Sin compras', 'gray');
+}
+
+function kv(label, value, cls){
+  return `<div class="kv ${cls||''}"><span class="k">${label}</span><span class="v">${value}</span></div>`;
+}
+
+function renderAuthScreen(){
+  const st = state.auth.status;
+  let inner = '';
+  if(st === 'loading'){
+    inner = `<div class="auth-msg">Cargando…</div>`;
+  } else if(st === 'syncing'){
+    inner = `<div class="auth-msg">Sincronizando datos…${navigator.onLine === false ? '<div class="hint">Sin conexión: se usarán los datos guardados en este teléfono.</div>' : ''}</div>`;
+  } else if(st === 'signedOut'){
+    inner = `<div class="card">
+      <div class="card-title">Iniciar sesión</div>
+      <div class="field"><label class="field-label">Correo</label>
+        <input type="email" id="login-email" autocomplete="username" value="${escapeHtml(state.auth.email || '')}"></div>
+      <div class="field"><label class="field-label">Contraseña</label>
+        <input type="password" id="login-pass" autocomplete="current-password"></div>
+      ${state.auth.error ? `<div class="hint neg" style="margin:0 0 10px;">${escapeHtml(state.auth.error)}</div>` : ''}
+      <button class="btn" data-action="login">Entrar</button>
+    </div>`;
+  } else if(st === 'noProfile'){
+    inner = `<div class="card">
+      <div class="card-title">Cuenta sin rol asignado</div>
+      <div style="font-size:14px; line-height:1.5;">La cuenta <strong>${escapeHtml(state.auth.email || '')}</strong> aún no tiene un rol. Pide al administrador que cree en Firestore, en la colección <strong>users</strong>, un documento con este ID:</div>
+      <div class="uidbox mono">${escapeHtml(myUid() || '')}</div>
+      <div class="hint" style="margin:0 0 12px;">Con dos campos de texto: <strong>name</strong> (el nombre) y <strong>role</strong> (<strong>admin</strong> o <strong>compras</strong>).</div>
+      <button class="btn" data-action="reintentar">Ya lo hicieron, reintentar</button>
+      <button class="btn ghost" style="margin-top:10px;" data-action="logout">Cerrar sesión</button>
+    </div>`;
+  } else {
+    inner = `<div class="card">
+      <div class="card-title">Ocurrió un problema</div>
+      <div style="font-size:14px; line-height:1.5;">${escapeHtml(state.auth.error || 'Error desconocido.')}</div>
+      <button class="btn" style="margin-top:12px;" data-action="reintentar">Reintentar</button>
+      ${state.auth.user ? `<button class="btn ghost" style="margin-top:10px;" data-action="logout">Cerrar sesión</button>` : ''}
+    </div>`;
+  }
+  return `<header class="topbar"><h1>Bodega Toronjitas</h1><div class="sub">Pedidos, cobros y caja</div><div class="stripe"></div></header><main>${inner}</main>`;
+}
+
+function render(){
+  const app = document.getElementById('app');
+  state.pendingRender = false;
+  if(state.auth.status !== 'ready'){
+    app.innerHTML = renderAuthScreen();
+    attachHandlers();
+    return;
+  }
+  if(!canView(state.view)) state.view = isAdmin() ? 'pedido' : 'historial';
+
+  let body = '';
+  if(state.view==='pedido') body = renderPedido();
+  else if(state.view==='nota') body = renderNota();
+  else if(state.view==='clientes') body = renderClientes();
+  else if(state.view==='cliente-detalle') body = renderClienteDetalle();
+  else if(state.view==='historial') body = renderHistorial();
+  else if(state.view==='historial-detalle') body = renderHistorialDetalle();
+  else if(state.view==='cobranza') body = renderCobranza();
+  else if(state.view==='pago-cliente') body = renderPagoCliente();
+  else if(state.view==='caja') body = renderCaja();
+  else if(state.view==='corte') body = renderCorte();
+
+  const debt = totalDebt();
+  app.innerHTML = `
+    <header class="topbar">
+      <div class="top-row">
+        <div>
+          <h1>Bodega Toronjitas</h1>
+          <div class="sub">${headerSubtitle()}</div>
+        </div>
+        ${debt > EPS ? `<button class="debt-pill" data-action="ir-cobranza"><span>Por cobrar</span><b>${money(debt)}</b></button>` : ''}
+      </div>
+      <div class="stripe"></div>
+    </header>
+    <div id="offline-banner" class="offline-banner" style="display:${navigator.onLine === false ? 'block' : 'none'};">Sin conexión · tus cambios se guardan y se enviarán al reconectar</div>
+    <main>${body}</main>
+    ${renderTabbar()}
+    ${state.modal ? renderModal() : ''}
+  `;
+  attachHandlers();
+}
+
+function headerSubtitle(){
+  switch(state.view){
+    case 'pedido': return state.editingOrderId ? 'Editando pedido' : 'Nuevo pedido';
+    case 'nota': return 'Nota generada';
+    case 'clientes': return 'Clientes y catálogo';
+    case 'cliente-detalle': return getClient(state.clienteDetalleId)?.name || '';
+    case 'historial': return 'Pedidos registrados';
+    case 'historial-detalle': return 'Detalle del pedido';
+    case 'cobranza': return 'Cuentas por cobrar';
+    case 'pago-cliente': return 'Registrar pago';
+    case 'caja': return 'Caja y saldo';
+    case 'corte': return 'Corte semanal';
+    default: return '';
+  }
+}
+
+function renderTabbar(){
+  const tabs = isAdmin() ? [
+    {id:'pedido', label:'Pedido', icon:'🧾'},
+    {id:'clientes', label:'Clientes', icon:'👤'},
+    {id:'historial', label:'Historial', icon:'📜'},
+    {id:'caja', label:'Caja', icon:'💰'},
+    {id:'corte', label:'Corte', icon:'📊'}
+  ] : [
+    {id:'historial', label:'Pedidos', icon:'📜'},
+    {id:'cobranza', label:'Por cobrar', icon:'💵'},
+    {id:'caja', label:'Caja', icon:'💰'}
+  ];
+  const isActive = t => state.view===t.id
+    || (t.id==='pedido' && state.view==='nota')
+    || (t.id==='clientes' && state.view==='cliente-detalle')
+    || (t.id==='historial' && state.view==='historial-detalle')
+    || (t.id==='cobranza' && state.view==='pago-cliente');
+  return `<nav class="tabbar">
+    ${tabs.map(t=>`<button data-action="tab" data-tab="${t.id}" class="${isActive(t)?'active':''}">
+      <span class="icon">${t.icon}</span>${t.label}
+    </button>`).join('')}
+  </nav>`;
+}
+
+// ---------- PEDIDO ----------
+function renderPedido(){
+  const isEditing = !!state.editingOrderId;
+
+  if(!state.orderClientId){
+    if(state.data.clients.length===0){
+      return `<div class="card empty">
+        <i>👤</i>
+        Todavía no tienes clientes registrados.<br>Agrega uno para empezar a levantar pedidos.
+        <div style="margin-top:14px;"><button class="btn" data-action="nuevo-cliente">+ Agregar cliente</button></div>
+      </div>`;
+    }
+    return `<div class="card">
+      <div class="card-title">Elige un cliente</div>
+      ${state.data.clients.map(c=>`
+        <div class="client-item">
+          <div class="client-name">${escapeHtml(c.name)}${draftHasItems(c.id) ? ' <span class="badge green">Pedido en curso</span>' : ''}</div>
+          <button class="btn small secondary" data-action="elegir-cliente" data-id="${c.id}">Levantar pedido</button>
+        </div>
+      `).join('')}
+    </div>
+    <button class="btn ghost" data-action="nuevo-cliente">+ Nuevo cliente</button>`;
+  }
+
+  const client = getClient(state.orderClientId);
+  const products = getProducts(state.orderClientId);
+  const items = getCurrentDraft();
+  const {orderedProducts, defaultIds} = buildProductDisplayList(state.orderClientId, items, products);
+  let total = 0;
+  Object.values(items).forEach(it=>{ if(it.qty>0) total += it.qty*it.price; });
+  const editingOrder = isEditing ? state.data.orders.find(o=>o.id===state.editingOrderId) : null;
+
+  return `
+    <div class="row between" style="margin-bottom:14px;">
+      <div>
+        <div class="muted">${isEditing ? 'Editando pedido' : 'Pedido para'}</div>
+        <h2 style="font-size:20px;">${escapeHtml(client.name)}</h2>
+        ${isEditing && editingOrder ? `<div class="muted" style="font-size:12px; margin-top:2px;">Folio ${escapeHtml(getOrderFolio(editingOrder))}</div>` : ''}
+      </div>
+      <button class="btn small ghost" data-action="${isEditing ? 'cancelar-edicion' : 'cambiar-cliente'}">${isEditing ? 'Cancelar' : 'Cambiar'}</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Catálogo de ${escapeHtml(client.name)}</div>
+      ${products.length===0 ? `<div class="empty" style="padding:16px 4px;">Este cliente aún no tiene productos.<br>Agrega el primero.</div>` : `
+      <div class="filter-wrap">
+        <span class="fi">🔎</span>
+        <input type="text" id="product-filter" placeholder="Buscar producto..." value="${escapeHtml(state.productFilterText||'')}">
+        <button type="button" class="filter-clear" id="filter-clear-btn" data-action="limpiar-filtro" aria-label="Limpiar búsqueda" style="display:${state.productFilterText ? 'flex' : 'none'};">✕</button>
+      </div>
+      ${products.length>5 ? `<div class="muted" id="product-hint" style="margin:-4px 0 8px; display:${state.productFilterText ? 'none' : 'block'};">Agregados y más vendidos — busca para ver el resto del catálogo</div>` : ''}
+      <div id="product-list">
+      ${orderedProducts.map(p=>{
+        const it = items[p.id] || {qty:0, price:p.price, cost:p.cost};
+        return `<div class="product-item" data-action="abrir-item" data-id="${p.id}" data-name="${escapeHtml(p.name.toLowerCase())}" data-default="${defaultIds.has(p.id)}" style="cursor:pointer;">
+          <div>
+            <div class="client-name" style="font-size:14px;">${escapeHtml(p.name)}</div>
+            <div class="price-tag">$${fmt(p.price)}</div>
+          </div>
+          ${it.qty>0 ? `<span class="qty-pill">x${it.qty}</span>` : `<span class="muted">Tocar para agregar</span>`}
+        </div>`;
+      }).join('')}
+      </div>
+      <div id="product-empty-filter" class="empty" style="padding:14px 4px; display:none;">
+        Sin productos que coincidan con la búsqueda.
+        <div style="margin-top:10px;"><button class="btn small mustard" data-action="nuevo-producto">+ Agregar como producto nuevo</button></div>
+      </div>
+      `}
+      <button class="btn ghost" style="margin-top:10px;" data-action="nuevo-producto">+ Agregar producto nuevo</button>
+    </div>
+
+    <div class="card" style="background:var(--green); color:#fff; border:none;">
+      <div class="row between">
+        <span style="font-weight:600;">Total del pedido</span>
+        <span class="mono" style="font-size:20px; font-weight:700;">$${fmt(total)}</span>
+      </div>
+    </div>
+
+    <button class="btn mustard" data-action="${isEditing ? 'guardar-edicion-pedido' : 'generar-nota'}" ${total<=0?'style="opacity:0.5;"':''}>${isEditing ? 'Guardar cambios' : 'Generar nota de venta'}</button>
+  `;
+}
+
+function getCurrentDraft(){
+  if(state.editingOrderId){
+    if(!state.editDraft) state.editDraft = {};
+    return state.editDraft;
+  }
+  return getDraft(state.orderClientId);
+}
+
+function buildProductDisplayList(clientId, draftItems, products){
+  const addedIds = new Set(Object.keys(draftItems).filter(id=>draftItems[id].qty>0));
+  const salesSorted = getSalesSortedProducts(clientId);
+  const remainingSlots = Math.max(0, 5 - addedIds.size);
+  const extraIds = salesSorted.filter(p=>!addedIds.has(p.id)).slice(0, remainingSlots).map(p=>p.id);
+  const defaultIds = new Set([...addedIds, ...extraIds]);
+
+  const addedList = products.filter(p=>addedIds.has(p.id));
+  const extraList = salesSorted.filter(p=>extraIds.includes(p.id));
+  const restList = products.filter(p=>!addedIds.has(p.id) && !extraIds.includes(p.id));
+  const orderedProducts = [...addedList, ...extraList, ...restList];
+  return {orderedProducts, defaultIds};
+}
+
+function openItemModal(productId, catalogOnly, initialName){
+  const isNew = productId === null;
+  const product = isNew ? null : getProducts(state.orderClientId).find(p=>p.id===productId);
+  const draft = getCurrentDraft();
+  const existing = (!catalogOnly && productId && draft[productId]) ? draft[productId] : null;
+
+  state.modal = {
+    type:'item',
+    productId,
+    catalogOnly: !!catalogOnly,
+    name: product ? product.name : (initialName || ''),
+    price: existing ? existing.price : (product ? product.price : ''),
+    cost: existing ? existing.cost : (product ? product.cost : ''),
+    qty: existing ? existing.qty : (isNew && !catalogOnly ? 1 : 0)
+  };
+  render();
+}
+
+function openRegistro(kind, id){
+  const order = state.data.orders.find(o=>o.id===state.historyOpenId);
+  if(!order) return;
+  ensureOrderFinance(order);
+  const f = orderFinance(order);
+  const list = kind==='pago' ? order.payments : (kind==='compra' ? order.purchases : order.movs);
+  const rec = id ? list.find(x=>x.id===id) : null;
+  if(!isAdmin()){
+    if(order.closed){ showToast('Este pedido ya está cerrado.'); return; }
+    if(rec && rec.createdBy !== myUid()){ showToast('Solo puedes modificar los registros que tú hiciste.'); return; }
+  }
+
+  let amount = '', label = '', date = localDateStr(new Date()), hint = '';
+  if(rec){
+    amount = rec.amount;
+    label = (kind==='pago' ? rec.note : (kind==='compra' ? rec.supplier : '')) || '';
+    date = isoToDateInput(rec.date);
+  } else {
+    if(kind==='pago' && f.pending > EPS) amount = round2(f.pending);
+    if(kind==='compra' && (f.cost - f.purchases) > EPS) amount = round2(f.cost - f.purchases);
+    if(kind==='sobrante' && (f.expectedSobrante - f.sobrantes) > EPS) amount = round2(f.expectedSobrante - f.sobrantes);
+  }
+  if(kind==='pago') hint = `Total de la nota ${money(f.total)} · pagado ${money(f.paid)} · pendiente ${money(Math.max(0, f.pending))}`;
+  if(kind==='compra') hint = `Costo según la nota ${money(f.cost)} · notas registradas ${money(f.purchases)}`;
+  if(kind==='salida') hint = `Dinero que sacas del saldo para surtir este pedido. Ya retirado: ${money(f.salidas)}`;
+  if(kind==='sobrante') hint = `Esperado según salida y compras: ${money(Math.max(0, f.expectedSobrante))} · ya devuelto ${money(f.sobrantes)}`;
+
+  state.modal = {type:'registro', kind, id: rec ? rec.id : null, amount, label, date, hint, originalDate: rec ? rec.date : null};
+  render();
+}
+
+function renderModal(){
+  const m = state.modal;
+  if(m.type==='item'){
+    const isNew = m.productId===null;
+    return `<div class="overlay" data-action="cerrar-modal">
+      <div class="sheet" onclick="event.stopPropagation()">
+        <div class="sheet-handle"></div>
+        <h3 style="font-size:19px; margin-bottom:14px;">${isNew ? 'Producto nuevo' : escapeHtml(m.name)}</h3>
+        ${isNew ? `<div class="field">
+          <label class="field-label">Nombre del producto</label>
+          <input type="text" id="f-name" value="${escapeHtml(m.name)}" placeholder="Ej. Frijol 1kg">
+        </div>` : ''}
+        <div class="row" style="gap:10px;">
+          <div class="field" style="flex:1;">
+            <label class="field-label">Precio de venta</label>
+            <input type="number" inputmode="decimal" id="f-price" value="${m.price}" placeholder="0.00">
+          </div>
+          <div class="field" style="flex:1;">
+            <label class="field-label">Costo de compra</label>
+            <input type="number" inputmode="decimal" id="f-cost" value="${m.cost}" placeholder="0.00">
+          </div>
+        </div>
+        ${!m.catalogOnly ? `<div class="field">
+          <label class="field-label">Cantidad en este pedido</label>
+          <div class="stepper">
+            <button data-action="qty-menos" type="button">−</button>
+            <input type="number" inputmode="numeric" id="f-qty" class="qty-input" value="${m.qty}" min="0" step="1">
+            <button data-action="qty-mas" type="button">+</button>
+          </div>
+        </div>` : ''}
+        <div class="row" style="gap:10px; margin-top:16px;">
+          ${!isNew ? `<button class="btn brick" style="flex:1;" data-action="eliminar-producto">Eliminar</button>` : ''}
+          <button class="btn" style="flex:2;" data-action="guardar-item">Guardar</button>
+        </div>
+      </div>
+    </div>`;
+  }
+  if(m.type==='nuevo-cliente'){
+    return `<div class="overlay" data-action="cerrar-modal">
+      <div class="sheet" onclick="event.stopPropagation()">
+        <div class="sheet-handle"></div>
+        <h3 style="font-size:19px; margin-bottom:14px;">${m.clientId ? 'Renombrar cliente' : 'Nuevo cliente'}</h3>
+        <div class="field">
+          <label class="field-label">Nombre del cliente</label>
+          <input type="text" id="f-client-name" placeholder="Ej. Doña Rosa" value="${escapeHtml(m.name||'')}">
+        </div>
+        <button class="btn" data-action="guardar-cliente">${m.clientId ? 'Guardar cambios' : 'Guardar cliente'}</button>
+      </div>
+    </div>`;
+  }
+  if(m.type==='registro'){
+    const titles = {pago:'Pago del cliente', compra:'Nota de compra', salida:'Salida de caja (para surtir)', sobrante:'Sobrante devuelto a caja'};
+    const amountLabels = {pago:'Importe pagado', compra:'Importe de la nota', salida:'Importe retirado del saldo', sobrante:'Importe devuelto'};
+    const labelCfg = {
+      pago:{text:'Nota (opcional)', ph:'Ej. efectivo, transferencia'},
+      compra:{text:'Negocio / proveedor', ph:'Ej. Abarrotes El Sol'}
+    }[m.kind];
+    return `<div class="overlay" data-action="cerrar-modal">
+      <div class="sheet" onclick="event.stopPropagation()">
+        <div class="sheet-handle"></div>
+        <h3 style="font-size:19px; margin-bottom:6px;">${m.id ? 'Editar · ' : ''}${titles[m.kind]}</h3>
+        ${m.hint ? `<div class="hint" style="margin:0 0 12px;">${escapeHtml(m.hint)}</div>` : '<div style="height:8px;"></div>'}
+        <div class="row" style="gap:10px;">
+          <div class="field" style="flex:1;">
+            <label class="field-label">${amountLabels[m.kind]}</label>
+            <input type="number" inputmode="decimal" id="f-amount" value="${m.amount}" placeholder="0.00">
+          </div>
+          <div class="field" style="flex:1;">
+            <label class="field-label">Fecha</label>
+            <input type="date" id="f-date" value="${m.date}">
+          </div>
+        </div>
+        ${labelCfg ? `<div class="field">
+          <label class="field-label">${labelCfg.text}</label>
+          <input type="text" id="f-label" value="${escapeHtml(m.label||'')}" placeholder="${labelCfg.ph}">
+        </div>` : ''}
+        <div class="row" style="gap:10px; margin-top:8px;">
+          ${m.id ? `<button class="btn brick" style="flex:1;" data-action="eliminar-registro">Eliminar</button>` : ''}
+          <button class="btn" style="flex:2;" data-action="guardar-registro">Guardar</button>
+        </div>
+      </div>
+    </div>`;
+  }
+  if(m.type==='saldo-inicial'){
+    return `<div class="overlay" data-action="cerrar-modal">
+      <div class="sheet" onclick="event.stopPropagation()">
+        <div class="sheet-handle"></div>
+        <h3 style="font-size:19px; margin-bottom:6px;">Saldo inicial de caja</h3>
+        <div class="hint" style="margin:0 0 12px;">Es el dinero con el que empiezas, antes de los movimientos registrados en la app.</div>
+        <div class="field">
+          <label class="field-label">Importe</label>
+          <input type="number" inputmode="decimal" id="f-initial" value="${m.amount}" placeholder="0.00">
+        </div>
+        <button class="btn" data-action="guardar-saldo-inicial">Guardar</button>
+      </div>
+    </div>`;
+  }
+  if(m.type==='cierre-semana'){
+    return `<div class="overlay" data-action="cerrar-modal">
+      <div class="sheet" onclick="event.stopPropagation()">
+        <div class="sheet-handle"></div>
+        <h3 style="font-size:19px; margin-bottom:6px;">Cerrar semana</h3>
+        <div class="hint" style="margin:0 0 12px;">Semana ${escapeHtml(m.label)}. Saldo al corte: <strong>${money(m.closingBefore)}</strong>. Lo que quede después del retiro será el saldo inicial de la siguiente semana.</div>
+        <div class="field">
+          <label class="field-label">Retiro para pagar a empleados</label>
+          <input type="number" inputmode="decimal" id="f-payroll" value="${m.amount}" placeholder="0.00">
+        </div>
+        <div class="row" style="gap:10px; margin-top:8px;">
+          ${m.hasPayroll ? `<button class="btn brick" style="flex:1;" data-action="quitar-cierre">Quitar retiro</button>` : ''}
+          <button class="btn" style="flex:2;" data-action="guardar-cierre">Guardar cierre</button>
+        </div>
+      </div>
+    </div>`;
+  }
+  return '';
+}
+
+// ---------- NOTA ----------
+function buildNotaText(order){
+  const client = getClient(order.clientId) || {name: order.clientName};
+  const fecha = new Date(order.date).toLocaleDateString('es-MX', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+  let lines = [];
+  lines.push('BODEGA TORONJITAS');
+  lines.push('NOTA DE PEDIDO');
+  lines.push('Folio: ' + getOrderFolio(order));
+  lines.push('Cliente: ' + client.name);
+  lines.push('Fecha: ' + fecha);
+  lines.push('');
+  order.items.forEach(it=>{
+    lines.push(`${it.name}  x${it.qty} @ $${fmt(it.price)}  =  $${fmt(it.price*it.qty)}`);
+  });
+  lines.push('');
+  lines.push('TOTAL: $' + fmt(orderTotals(order).total));
+  return lines.join('\n');
+}
+
+function loadImage(src){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    img.onload = ()=>resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+function drawHr(ctx, x1, x2, y){
+  ctx.strokeStyle = '#D9D2BC';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(x1, y+0.5);
+  ctx.lineTo(x2, y+0.5);
+  ctx.stroke();
+}
+
+async function generateNotaImageDataUrl(order){
+  const client = getClient(order.clientId) || {name: order.clientName};
+  const t = orderTotals(order);
+  const fecha = new Date(order.date).toLocaleDateString('es-MX', {day:'numeric', month:'long', year:'numeric'});
+  const folio = getOrderFolio(order);
+  const logo = state.data.logo;
+
+  const width = 640;
+  const padding = 40;
+  const itemRowH = 48;
+  const logoBlockH = logo ? 96 : 8;
+  const headerH = 30 /*marca*/ + logoBlockH + 32 /*titulo*/ + 20 /*fecha*/ + 20 /*folio*/ + 22 /*hr*/ + 26 /*cliente*/ + 22 /*hr*/;
+  const footerH = 24 /*hr*/ + 40 /*total*/ + 24;
+  const height = padding*2 + headerH + order.items.length*itemRowH + footerH;
+
+  if(document.fonts && document.fonts.ready){
+    try{ await document.fonts.ready; }catch(e){}
+  }
+
+  const scale = 2;
+  const canvas = document.createElement('canvas');
+  canvas.width = width*scale;
+  canvas.height = height*scale;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(scale, scale);
+  ctx.textBaseline = 'alphabetic';
+
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(0, 0, width, height);
+
+  let y = padding;
+
+  ctx.fillStyle = '#1F4D3A';
+  ctx.font = '700 13px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('BODEGA TORONJITAS', width/2, y);
+  y += 26;
+
+  if(logo){
+    try{
+      const img = await loadImage(logo);
+      const boxSize = 76;
+      const ratio = Math.min(boxSize/img.width, boxSize/img.height, 1);
+      const w = img.width*ratio, h = img.height*ratio;
+      ctx.drawImage(img, width/2 - w/2, y, w, h);
+      y += boxSize + 12;
+    }catch(e){ y += 10; }
+  } else {
+    y += 4;
+  }
+
+  ctx.fillStyle = '#20301F';
+  ctx.font = '600 19px Inter, sans-serif';
+  ctx.fillText('Nota de pedido', width/2, y+14);
+  y += 32;
+
+  ctx.fillStyle = '#5B6355';
+  ctx.font = '400 12px Inter, sans-serif';
+  ctx.fillText(fecha, width/2, y);
+  y += 18;
+
+  ctx.font = '400 11px "IBM Plex Mono", monospace';
+  ctx.fillText('Folio ' + folio, width/2, y);
+  y += 20;
+
+  drawHr(ctx, padding, width-padding, y);
+  y += 22;
+
+  ctx.fillStyle = '#20301F';
+  ctx.font = '600 15px Inter, sans-serif';
+  ctx.fillText('Cliente: ' + client.name, width/2, y);
+  y += 22;
+
+  drawHr(ctx, padding, width-padding, y);
+  y += 8;
+
+  order.items.forEach(it=>{
+    const lineTotal = it.price * it.qty;
+
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#20301F';
+    ctx.font = '600 14px Inter, sans-serif';
+    ctx.fillText(it.name, padding, y+18);
+
+    ctx.textAlign = 'right';
+    ctx.font = '600 14px "IBM Plex Mono", monospace';
+    ctx.fillText('$'+fmt(lineTotal), width-padding, y+18);
+
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#5B6355';
+    ctx.font = '400 12px "IBM Plex Mono", monospace';
+    ctx.fillText(`x${it.qty} · $${fmt(it.price)} c/u`, padding, y+36);
+
+    y += itemRowH;
+  });
+
+  drawHr(ctx, padding, width-padding, y);
+  y += 26;
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#20301F';
+  ctx.font = '700 18px Inter, sans-serif';
+  ctx.fillText('Total', padding, y);
+
+  ctx.textAlign = 'right';
+  ctx.font = '700 18px "IBM Plex Mono", monospace';
+  ctx.fillText('$'+fmt(t.total), width-padding, y);
+
+  return canvas.toDataURL('image/png');
+}
+
+function renderNota(){
+  const order = state.data.orders.find(o=>o.id===state.lastOrderId);
+  if(!order) return `<div class="empty">No hay nota que mostrar.</div>`;
+  const client = getClient(order.clientId) || {name: order.clientName};
+  const t = orderTotals(order);
+  const fecha = new Date(order.date).toLocaleDateString('es-MX', {day:'numeric', month:'long', year:'numeric'});
+  const logo = state.data.logo;
+
+  return `
+    <div class="receipt-simple">
+      <div class="rn-brand">BODEGA TORONJITAS</div>
+      <div class="logo-slot" data-action="elegir-logo">
+        ${logo ? `<img src="${logo}" alt="Logo">` : '+ Logo'}
+      </div>
+      <div class="rn-title">Nota de pedido</div>
+      <div class="rn-date">${fecha}</div>
+      <div class="muted" style="text-align:center; font-size:11px; margin-top:1px;">Folio ${escapeHtml(getOrderFolio(order))}</div>
+      <div class="rn-hr"></div>
+      <div class="rn-client">Cliente: <strong>${escapeHtml(client.name)}</strong></div>
+      <div class="rn-hr"></div>
+      ${order.items.map(it=>`
+        <div class="rn-item-row">
+          <div class="rn-item-main">
+            <span>${escapeHtml(it.name)}</span>
+            <span class="mono">$${fmt(it.price*it.qty)}</span>
+          </div>
+          <div class="rn-item-sub">x${it.qty} · $${fmt(it.price)} c/u</div>
+        </div>
+      `).join('')}
+      <div class="rn-total">
+        <span>Total</span>
+        <span class="mono">$${fmt(t.total)}</span>
+      </div>
+    </div>
+    ${logo ? `<div class="logo-change" data-action="quitar-logo">Quitar logo</div>` : `<div class="logo-change" data-action="elegir-logo">Agregar el logo de tu negocio</div>`}
+    <input type="file" id="logo-file-input" accept="image/*" style="display:none">
+    <div class="row" style="gap:10px; margin-top:14px;">
+      <button class="btn secondary" data-action="copiar-nota">Copiar texto</button>
+      <button class="btn mustard" data-action="whatsapp-nota">Enviar por WhatsApp</button>
+    </div>
+    <button class="btn" style="margin-top:10px;" data-action="descargar-nota">Descargar como imagen</button>
+    <button class="btn secondary" style="margin-top:10px;" data-action="ver-pedido" data-id="${order.id}">Cobros, compras y caja de este pedido</button>
+    <button class="btn ghost" style="margin-top:10px;" data-action="nuevo-pedido">+ Levantar otro pedido</button>
+  `;
+}
+
+// ---------- CLIENTES ----------
+function renderClientes(){
+  return `<div class="card">
+    <div class="card-title">Tus clientes</div>
+    ${state.data.clients.length===0 ? `<div class="empty" style="padding:16px 4px;">Aún no tienes clientes.</div>` :
+    state.data.clients.map(c=>{
+      const n = getProducts(c.id).length;
+      const debe = clientPending(c.id);
+      return `<div class="client-item" data-action="ver-cliente" data-id="${c.id}" style="cursor:pointer;">
+        <div>
+          <div class="client-name">${escapeHtml(c.name)}</div>
+          <div class="muted">${n} producto${n===1?'':'s'} en su catálogo</div>
+          ${debe > EPS ? `<div class="badges">${badge('Por cobrar ' + money(debe), 'amber')}</div>` : ''}
+        </div>
+        <span class="muted">›</span>
+      </div>`;
+    }).join('')}
+  </div>
+  <button class="btn ghost" data-action="nuevo-cliente">+ Nuevo cliente</button>`;
+}
+
+function renderClienteDetalle(){
+  const client = getClient(state.clienteDetalleId);
+  if(!client){ state.view='clientes'; return renderClientes(); }
+  const products = getProducts(client.id);
+  return `
+    <div class="row between" style="margin-bottom:14px;">
+      <h2 style="font-size:20px;">${escapeHtml(client.name)}</h2>
+      <button class="btn small ghost" data-action="renombrar-cliente">✎ Renombrar</button>
+    </div>
+    <div class="card">
+      <div class="card-title">Catálogo — precio y costo por producto</div>
+      ${products.length===0 ? `<div class="empty" style="padding:16px 4px;">Sin productos todavía.</div>` :
+      products.map(p=>`
+        <div class="product-item" data-action="editar-producto-catalogo" data-id="${p.id}" style="cursor:pointer;">
+          <div>
+            <div class="client-name" style="font-size:14px;">${escapeHtml(p.name)}</div>
+            <div class="row" style="gap:10px; margin-top:2px;">
+              <span class="price-tag">Venta $${fmt(p.price)}</span>
+              <span class="cost-tag">Costo $${fmt(p.cost)}</span>
+            </div>
+          </div>
+          <span class="muted">✎</span>
+        </div>
+      `).join('')}
+      <button class="btn ghost" style="margin-top:10px;" data-action="nuevo-producto-catalogo">+ Agregar producto</button>
+    </div>
+    <button class="btn secondary" data-action="pedido-para-este-cliente">Levantar pedido para ${escapeHtml(client.name)}</button>
+    ${clientPending(client.id) > EPS ? `<button class="btn mustard" style="margin-top:10px;" data-action="abrir-pago-cliente" data-client="${client.id}">Registrar pago (debe ${money(clientPending(client.id))})</button>` : ''}
+  `;
+}
+
+// ---------- HISTORIAL ----------
+function renderHistorial(){
+  const all = [...state.data.orders].sort((a,b)=> new Date(b.date)-new Date(a.date));
+  if(all.length===0){
+    return `<div class="card empty"><i>📜</i>Todavía no hay pedidos registrados.</div>`;
+  }
+  const filter = state.historyFilter || 'todos';
+  const porCobrar = all.filter(o=> orderFinance(o).payState !== 'pagado');
+  const orders = filter==='por-cobrar' ? porCobrar : all;
+  const debt = totalDebt();
+
+  return `
+    <div class="tab-toggle">
+      <button data-action="filtro-historial" data-filter="todos" class="${filter==='todos'?'active':''}">Todos (${all.length})</button>
+      <button data-action="filtro-historial" data-filter="por-cobrar" class="${filter==='por-cobrar'?'active':''}">Por cobrar (${porCobrar.length})</button>
+    </div>
+    ${filter==='por-cobrar' && debt > EPS ? `
+      <div class="card" style="background:var(--green); color:#fff; border:none;">
+        <div class="row between">
+          <div><div style="font-size:12px; color:#BEDBC9; font-weight:600; text-transform:uppercase;">Total por cobrar</div>
+          <div class="mono" style="font-size:22px; font-weight:700;">${money(debt)}</div></div>
+          <button class="btn small mustard" data-action="ir-cobranza">Registrar pago</button>
+        </div>
+      </div>` : ''}
+    <div class="card">
+      <div class="card-title">${filter==='por-cobrar' ? 'Pedidos con cobro pendiente' : 'Pedidos recientes'}</div>
+      ${orders.length===0 ? `<div class="empty" style="padding:16px 4px;">No tienes pedidos por cobrar.</div>` :
+      orders.map(o=>{
+        const t = orderTotals(o);
+        const f = orderFinance(o);
+        const client = getClient(o.clientId) || {name:o.clientName};
+        const d = new Date(o.date);
+        return `<div class="order-item" data-action="ver-pedido" data-id="${o.id}" style="cursor:pointer;">
+          <div>
+            <div class="client-name" style="font-size:14px;">${escapeHtml(client.name)}</div>
+            <div class="muted">Folio ${escapeHtml(getOrderFolio(o))} · ${fmtDateShort(d)}</div>
+            <div class="badges">${payBadge(f)}${purchaseBadge(f)}${o.closed ? badge('Cerrado','gray') : ''}</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="mono" style="font-weight:700;">$${fmt(t.total)}</div>
+            ${isAdmin() ? `<div class="profit-tag" style="font-size:12px;">+$${fmt(t.profit)}</div>` : ''}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function renderHistorialDetalle(){
+  const order = state.data.orders.find(o=>o.id===state.historyOpenId);
+  if(!order){ state.view='historial'; return renderHistorial(); }
+  const admin = isAdmin();
+  const locked = !!order.closed && !admin;
+  const client = getClient(order.clientId) || {name:order.clientName};
+  const t = orderTotals(order);
+  const f = orderFinance(order);
+  const d = new Date(order.date);
+  const byDate = (a,b)=> new Date(a.date) - new Date(b.date);
+  const payments = [...(order.payments||[])].sort(byDate);
+  const purchases = [...(order.purchases||[])].sort(byDate);
+  const movs = [...(order.movs||[])].sort(byDate);
+  const who = r => { const n = userName(r.createdBy); return n ? ` · ${escapeHtml(n)}` : ''; };
+  const canTouch = r => admin || (!order.closed && r.createdBy === myUid());
+  const rowAttrs = (kind, r) => canTouch(r) ? `data-action="abrir-registro" data-kind="${kind}" data-id="${r.id}" style="cursor:pointer;"` : '';
+
+  const checks = [];
+  checks.push(f.payState==='pagado'
+    ? {ic:'✓', cls:'pos', text:'Cobro completo.'}
+    : {ic:'⚠', cls:'neg', text:`Falta cobrar ${money(f.pending)}.`});
+  if(f.purchaseState==='cuadra'){
+    checks.push({ic:'✓', cls:'pos', text:'Las notas de compra coinciden con el costo de la nota.'});
+  } else if(f.purchaseState==='sin-registro'){
+    checks.push({ic:'•', cls:'', text:'Aún no registras notas de compra.'});
+  } else {
+    checks.push({ic:'⚠', cls:'neg', text:`Las notas de compra ${f.purchaseDiff>0?'superan':'son menores que'} el costo de la nota por ${money(Math.abs(f.purchaseDiff))}.`});
+  }
+  if(!f.hasCash){
+    checks.push({ic:'•', cls:'', text:'Sin salida de caja registrada para este pedido.'});
+  } else if(f.cashState==='cuadra'){
+    checks.push({ic:'✓', cls:'pos', text:'El sobrante devuelto coincide con salida − compras.'});
+  } else if(f.purchases>EPS && f.expectedSobrante < -EPS){
+    checks.push({ic:'⚠', cls:'neg', text:`Las compras superan lo retirado por ${money(-f.expectedSobrante)}; registra la salida que falta.`});
+  } else if(f.cashDiff < 0){
+    checks.push({ic:'⚠', cls:'neg', text:`Falta devolver ${money(-f.cashDiff)} a la caja.`});
+  } else {
+    checks.push({ic:'⚠', cls:'neg', text:`Devolviste ${money(f.cashDiff)} de más a la caja.`});
+  }
+
+  return `
+    <div class="card">
+      <div class="row between" style="margin-bottom:2px;">
+        <h2 style="font-size:19px;">${escapeHtml(client.name)}</h2>
+        <span class="badge green">${fmtDateShort(d)}</span>
+      </div>
+      <div class="muted" style="font-size:12px;">Folio ${escapeHtml(getOrderFolio(order))}</div>
+      <div class="badges" style="margin-bottom:10px;">${payBadge(f)}${purchaseBadge(f)}${order.closed ? badge('Pedido cerrado ✓','green') : badge('Pedido abierto','gray')}${(f.settled && !order.closed && admin) ? badge('Todo cuadra','green') : ''}</div>
+      ${order.items.map(it=>`
+        <div class="product-item">
+          <div>
+            <div style="font-size:14px; font-weight:600;">${escapeHtml(it.name)}</div>
+            <div class="muted">Cant. ${it.qty} · Venta $${fmt(it.price)} · Costo $${fmt(it.cost)}</div>
+          </div>
+          ${admin ? `<div class="profit-tag">+$${fmt((it.price-it.cost)*it.qty)}</div>` : ''}
+        </div>
+      `).join('')}
+    </div>
+    <div class="metric-grid">
+      <div class="metric"><div class="lbl">Venta total</div><div class="val">$${fmt(t.total)}</div></div>
+      <div class="metric"><div class="lbl">Costo según nota</div><div class="val">$${fmt(t.cost)}</div></div>
+    </div>
+    ${admin ? `<div class="metric ganancia" style="margin-bottom:14px;"><div class="lbl">Ganancia según nota</div><div class="val">$${fmt(t.profit)}</div></div>` : ''}
+    ${locked ? `<div class="hint" style="margin:0 0 12px;">Este pedido está cerrado: solo el administrador puede modificarlo.</div>` : ''}
+
+    <div class="card">
+      <div class="card-title">Cobros del cliente</div>
+      ${kv('Total de la nota', money(f.total))}
+      ${kv('Pagado', money(f.paid))}
+      ${kv(f.pending < -EPS ? 'Pagado de más' : 'Pendiente', money(Math.abs(f.pending)), 'total')}
+      ${payments.map(p=>`
+        <div class="product-item" ${rowAttrs('pago', p)}>
+          <div>
+            <div class="client-name" style="font-size:14px;">Pago · ${fmtDateShort(new Date(p.date))}${who(p)}</div>
+            ${p.note ? `<div class="muted">${escapeHtml(p.note)}</div>` : ''}
+            ${(p.groupTotal && p.groupTotal > p.amount + EPS) ? `<div class="muted">Parte de un pago de ${money(p.groupTotal)} repartido entre varias notas</div>` : ''}
+          </div>
+          <span class="profit-tag">${money(p.amount)}</span>
+        </div>`).join('')}
+      ${locked ? '' : `
+        <button class="btn secondary" style="margin-top:10px;" data-action="abrir-registro" data-kind="pago">+ Registrar pago de esta nota</button>
+        <button class="btn ghost" style="margin-top:8px;" data-action="abrir-pago-cliente" data-client="${order.clientId}">Pago que cubre varias notas del cliente</button>`}
+    </div>
+
+    <div class="card">
+      <div class="card-title">Notas de compra (proveedores)</div>
+      ${kv('Costo según la nota', money(f.cost))}
+      ${kv('Notas registradas', money(f.purchases))}
+      ${kv('Diferencia', money(f.purchaseDiff), 'total')}
+      ${f.purchaseState==='diferencia' ? `<div class="hint">Cada nota de compra debería sumar el costo que registraste al crear la nota.</div>` : ''}
+      ${purchases.map(p=>`
+        <div class="product-item" ${rowAttrs('compra', p)}>
+          <div>
+            <div class="client-name" style="font-size:14px;">${p.supplier ? escapeHtml(p.supplier) : 'Nota de compra'}</div>
+            <div class="muted">${fmtDateShort(new Date(p.date))}${who(p)}</div>
+          </div>
+          <span class="cost-tag">${money(p.amount)}</span>
+        </div>`).join('')}
+      ${locked ? '' : `<button class="btn secondary" style="margin-top:10px;" data-action="abrir-registro" data-kind="compra">+ Agregar nota de compra</button>`}
+    </div>
+
+    <div class="card">
+      <div class="card-title">Caja de este pedido</div>
+      ${kv('Salida (retirado del saldo)', money(f.salidas))}
+      ${kv('Sobrante devuelto', money(f.sobrantes))}
+      ${kv('Sobrante esperado (salida − compras)', money(f.expectedSobrante), 'total')}
+      ${movs.map(m=>`
+        <div class="product-item" ${rowAttrs(m.type, m)}>
+          <div>
+            <div class="client-name" style="font-size:14px;">${m.type==='salida' ? 'Salida para surtir' : 'Sobrante devuelto'}</div>
+            <div class="muted">${fmtDateShort(new Date(m.date))}${who(m)}</div>
+          </div>
+          <span class="${m.type==='salida' ? 'cost-tag' : 'profit-tag'}">${m.type==='salida' ? '−' : '+'}${money(m.amount)}</span>
+        </div>`).join('')}
+      ${locked ? '' : `<div class="btn-row">
+        <button class="btn secondary" data-action="abrir-registro" data-kind="salida">− Registrar salida</button>
+        <button class="btn secondary" data-action="abrir-registro" data-kind="sobrante">+ Devolver sobrante</button>
+      </div>`}
+    </div>
+
+    <div class="card">
+      <div class="card-title">Conciliación del pedido</div>
+      ${checks.map(c=>`<div class="check-row"><span class="ic ${c.cls}">${c.ic}</span><span>${c.text}</span></div>`).join('')}
+      ${admin ? `<div style="margin-top:8px;">
+        ${kv('Ganancia según nota', money(f.profit))}
+        ${kv('Ganancia real (cobrado − compras)', money(f.realProfit), 'total')}
+      </div>` : ''}
+    </div>
+
+    ${admin ? `
+      <button class="btn secondary" style="margin-bottom:10px;" data-action="editar-pedido" data-id="${order.id}">Editar pedido</button>
+      ${order.closed
+        ? `<button class="btn ghost" style="margin-bottom:10px;" data-action="reabrir-pedido">Reabrir pedido</button>`
+        : `<button class="btn mustard" style="margin-bottom:10px;" data-action="cerrar-pedido">Cerrar pedido</button>`}
+    ` : ''}
+    <button class="btn ghost" data-action="volver-historial">‹ Volver</button>
+  `;
+}
+
+// ---------- COBRANZA ----------
+function unpaidOrdersByClient(){
+  const map = {};
+  state.data.orders.forEach(o=>{
+    const f = orderFinance(o);
+    if(f.pending > EPS){ (map[o.clientId] = map[o.clientId] || []).push({o, f}); }
+  });
+  Object.values(map).forEach(l=> l.sort((a,b)=> new Date(a.o.date) - new Date(b.o.date)));
+  return map;
+}
+
+function renderCobranza(){
+  const map = unpaidOrdersByClient();
+  const sumOf = l => l.reduce((s,x)=> s + x.f.pending, 0);
+  const ids = Object.keys(map).sort((a,b)=> sumOf(map[b]) - sumOf(map[a]));
+  const total = ids.reduce((s,id)=> s + sumOf(map[id]), 0);
+  const notas = ids.reduce((s,id)=> s + map[id].length, 0);
+
+  return `
+    <div class="balance-hero">
+      <div class="lbl">Total por cobrar</div>
+      <div class="val">${money(total)}</div>
+      <div style="font-size:12px; color:#BEDBC9; margin-top:2px;">${notas} nota${notas===1?'':'s'} sin pagar · ${ids.length} cliente${ids.length===1?'':'s'}</div>
+    </div>
+    ${ids.length===0 ? `<div class="card empty"><i>✓</i>No hay notas por cobrar.</div>` : ids.map(cid=>{
+      const list = map[cid];
+      const client = getClient(cid) || {name: list[0].o.clientName};
+      const oldest = new Date(list[0].o.date);
+      return `<div class="card">
+        <div class="row between" style="margin-bottom:6px;">
+          <div>
+            <div class="client-name">${escapeHtml(client.name)}</div>
+            <div class="muted">${list.length} nota${list.length===1?'':'s'} · la más antigua del ${fmtDateShort(oldest)}</div>
+          </div>
+          <div class="mono neg" style="font-weight:700;">${money(sumOf(list))}</div>
+        </div>
+        ${list.map(({o, f})=>`
+          <div class="order-item" data-action="ver-pedido" data-id="${o.id}" style="cursor:pointer;">
+            <div>
+              <div class="muted">Folio ${escapeHtml(getOrderFolio(o))} · ${fmtDateShort(new Date(o.date))}</div>
+              <div class="badges">${payBadge(f)}</div>
+            </div>
+            <div class="mono" style="font-weight:700;">${money(f.pending)}</div>
+          </div>`).join('')}
+        <button class="btn mustard" style="margin-top:10px;" data-action="abrir-pago-cliente" data-client="${cid}">Registrar pago de ${escapeHtml(client.name)}</button>
+      </div>`;
+    }).join('')}
+  `;
+}
+
+// ---------- PAGO DEL CLIENTE (reparto entre notas) ----------
+function computePayFlow(pf){
+  const list = payableOrders(pf.clientId);
+  const debt = round2(list.reduce((s,x)=> s + x.f.pending, 0));
+  const total = parseFloat(pf.total) || 0;
+  let alloc = {};
+  if(pf.mode === 'auto'){
+    alloc = autoAllocate(list, total).alloc;
+  } else {
+    list.forEach(({o})=>{ const v = parseFloat(pf.alloc[o.id]); if(v > 0) alloc[o.id] = round2(v); });
+  }
+  const assigned = round2(Object.values(alloc).reduce((s,v)=> s + v, 0));
+  return {list, debt, total, alloc, assigned, rest: round2(total - assigned)};
+}
+
+function payFlowSummaryHtml(c){
+  let msg = '';
+  if(c.total > EPS && c.rest > EPS) msg = c.assigned >= c.debt - EPS
+    ? `El pago excede lo que debe el cliente (${money(c.debt)}).`
+    : `Faltan ${money(c.rest)} por asignar a alguna nota.`;
+  if(c.rest < -EPS) msg = 'Estás asignando más de lo que indica el importe del pago.';
+  return kv('Importe del pago', money(c.total))
+    + kv('Asignado a notas', money(c.assigned))
+    + kv(c.rest < -EPS ? 'Asignado de más' : 'Sin asignar', money(Math.abs(c.rest)), 'total')
+    + (msg ? `<div class="hint neg">${msg}</div>` : '');
+}
+
+function readPayFlowDom(){
+  const pf = state.payFlow;
+  if(!pf) return;
+  const g = id => document.getElementById(id);
+  if(g('pf-total')) pf.total = g('pf-total').value;
+  if(g('pf-date')) pf.date = g('pf-date').value;
+  if(g('pf-note')) pf.note = g('pf-note').value;
+  if(pf.mode === 'manual'){
+    payableOrders(pf.clientId).forEach(({o})=>{ const el = g('pf-a-' + o.id); if(el) pf.alloc[o.id] = el.value; });
+  }
+}
+
+function updatePayFlowSummary(){
+  const pf = state.payFlow;
+  if(!pf) return;
+  const c = computePayFlow(pf);
+  const el = document.getElementById('pf-summary');
+  if(el) el.innerHTML = payFlowSummaryHtml(c);
+  if(pf.mode === 'auto'){
+    c.list.forEach(({o})=>{
+      const e = document.getElementById('pf-auto-' + o.id);
+      if(e) e.textContent = c.alloc[o.id] ? '+' + money(c.alloc[o.id]) : '—';
+    });
+  }
+}
+
+function renderPagoCliente(){
+  const pf = state.payFlow;
+  if(!pf){ state.view = 'cobranza'; return renderCobranza(); }
+  const client = getClient(pf.clientId) || {name:'Cliente'};
+  const c = computePayFlow(pf);
+  return `
+    <div class="row between" style="margin-bottom:12px;">
+      <div>
+        <div class="muted">Pago de</div>
+        <h2 style="font-size:20px;">${escapeHtml(client.name)}</h2>
+      </div>
+      <button class="btn small ghost" data-action="cancelar-pago-cliente">Cancelar</button>
+    </div>
+    <div class="card">
+      ${kv('Debe en total', money(c.debt))}
+      ${kv('Notas sin pagar', String(c.list.length))}
+    </div>
+    ${c.list.length===0 ? `<div class="card empty">Este cliente no tiene notas por cobrar.</div>` : `
+    <div class="card">
+      <div class="row" style="gap:10px;">
+        <div class="field" style="flex:1;">
+          <label class="field-label">Importe del pago</label>
+          <input type="number" inputmode="decimal" id="pf-total" value="${escapeHtml(pf.total)}" placeholder="0.00">
+        </div>
+        <div class="field" style="flex:1;">
+          <label class="field-label">Fecha</label>
+          <input type="date" id="pf-date" value="${pf.date}">
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Nota (opcional)</label>
+        <input type="text" id="pf-note" value="${escapeHtml(pf.note)}" placeholder="Ej. efectivo, transferencia">
+      </div>
+      <button class="btn small ghost" data-action="pf-todo">Pagar todo (${money(c.debt)})</button>
+    </div>
+
+    <div class="tab-toggle">
+      <button data-action="pf-modo" data-mode="auto" class="${pf.mode==='auto'?'active':''}">Más antiguas primero</button>
+      <button data-action="pf-modo" data-mode="manual" class="${pf.mode==='manual'?'active':''}">Elegir notas</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">${pf.mode==='auto' ? 'Así se repartiría el pago' : 'Indica cuánto abona a cada nota'}</div>
+      ${c.list.map(({o, f})=>`
+        <div class="alloc-row">
+          <div>
+            <div class="client-name" style="font-size:14px;">Folio ${escapeHtml(getOrderFolio(o))}</div>
+            <div class="muted">${fmtDateShort(new Date(o.date))} · total ${money(f.total)} · debe ${money(f.pending)}</div>
+          </div>
+          <div class="alloc-amt">
+            ${pf.mode==='auto'
+              ? `<span class="mono pos" id="pf-auto-${o.id}" style="font-weight:700;">${c.alloc[o.id] ? '+' + money(c.alloc[o.id]) : '—'}</span>`
+              : `<input type="number" inputmode="decimal" class="pf-alloc" id="pf-a-${o.id}" value="${escapeHtml(pf.alloc[o.id] === undefined ? '' : pf.alloc[o.id])}" placeholder="0.00">
+                 <button class="btn small ghost" data-action="pf-max" data-id="${o.id}">Máx</button>`}
+          </div>
+        </div>`).join('')}
+      <div id="pf-summary" style="margin-top:8px;">${payFlowSummaryHtml(c)}</div>
+    </div>
+    <button class="btn mustard" data-action="guardar-pago-cliente">Registrar pago</button>
+    `}
+  `;
+}
+
+// ---------- CAJA ----------
+function renderCaja(){
+  const cash = state.data.cash;
+  const admin = isAdmin();
+  const balance = currentBalance();
+  let porCobrar = 0, abiertos = 0;
+  state.data.orders.forEach(o=>{
+    const f = orderFinance(o);
+    if(f.pending > EPS) porCobrar += f.pending;
+    if(!o.closed) abiertos++;
+  });
+
+  const labels = {salida:'Salida para surtir', sobrante:'Sobrante devuelto', cobro:'Cobro de cliente'};
+  const movimientos = ledgerEntries().map(e=>({
+    date:e.date, kind:e.type, amount:e.type==='salida' ? -e.amount : e.amount, orderId:e.orderId
+  }));
+  Object.entries(cash.payrolls || {}).forEach(([k, v])=>{
+    movimientos.push({date:v.date, kind:'nomina', amount:-(Number(v.amount)||0), weekKey:k});
+  });
+  movimientos.sort((a,b)=> new Date(b.date) - new Date(a.date));
+  const legacy = admin ? legacyData() : null;
+
+  return `
+    <div class="balance-hero">
+      <div class="lbl">Saldo en caja</div>
+      <div class="val">${money(balance)}</div>
+    </div>
+
+    ${admin ? (!cash.initialSet ? `
+      <div class="card">
+        <div class="card-title">Saldo inicial</div>
+        <div class="hint" style="margin:0 0 10px;">Registra con cuánto dinero empiezas en caja para que el saldo y el corte semanal cuadren.</div>
+        <button class="btn mustard" data-action="abrir-saldo-inicial">Registrar saldo inicial</button>
+      </div>` : `
+      <div class="card">
+        <div class="row between">
+          <div>
+            <div class="muted">Saldo inicial registrado</div>
+            <div class="mono" style="font-weight:700;">${money(Number(cash.initial)||0)}</div>
+          </div>
+          <button class="btn small ghost" data-action="abrir-saldo-inicial">✎ Ajustar</button>
+        </div>
+      </div>`) : ''}
+
+    <div class="metric-grid">
+      <div class="metric" data-action="ir-cobranza" style="cursor:pointer;"><div class="lbl">Por cobrar ›</div><div class="val">${money(porCobrar)}</div></div>
+      <div class="metric"><div class="lbl">Pedidos abiertos</div><div class="val">${abiertos}</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Movimientos recientes</div>
+      ${movimientos.length===0 ? `<div class="empty" style="padding:16px 4px;">Aún no hay movimientos. Registra salidas, sobrantes y cobros desde el detalle de cada pedido.</div>` :
+      movimientos.slice(0, 40).map(m=>{
+        const order = m.orderId ? state.data.orders.find(o=>o.id===m.orderId) : null;
+        const client = order ? (getClient(order.clientId) || {name:order.clientName}) : null;
+        const title = m.kind==='nomina' ? 'Retiro para empleados' : labels[m.kind];
+        const sub = m.kind==='nomina'
+          ? `Semana del ${fmtDateShort(new Date(m.weekKey + 'T12:00:00'))}`
+          : `${client ? escapeHtml(client.name) + ' · ' : ''}${fmtDateShort(new Date(m.date))}`;
+        const attrs = order ? `data-action="ver-pedido" data-id="${order.id}" style="cursor:pointer;"` : '';
+        return `<div class="order-item" ${attrs}>
+          <div>
+            <div class="client-name" style="font-size:14px;">${title}</div>
+            <div class="muted">${sub}</div>
+          </div>
+          <div class="mono ${m.amount<0?'neg':'pos'}" style="font-weight:700;">${m.amount<0?'−':'+'}$${fmt(Math.abs(m.amount))}</div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <div class="card">
+      <div class="card-title">Mi cuenta</div>
+      <div style="font-size:14px;"><strong>${escapeHtml(state.profileName)}</strong> · ${admin ? 'Administrador' : 'Compras'}</div>
+      <div class="muted" style="margin-bottom:10px;">${escapeHtml(state.auth.email || '')}</div>
+      ${admin ? `<button class="btn secondary" style="margin-bottom:8px;" data-action="exportar-respaldo">Descargar respaldo (JSON)</button>` : ''}
+      ${legacy ? `<button class="btn secondary" style="margin-bottom:8px;" data-action="importar-local">Subir los datos guardados en este teléfono</button>` : ''}
+      <button class="btn ghost" data-action="logout">Cerrar sesión</button>
+    </div>
+  `;
+}
+
+// ---------- CORTE SEMANAL ----------
+function renderCorte(){
+  const {start, end} = weekRange(state.weekOffset);
+  const orders = ordersInRange(start, end).sort((a,b)=> new Date(b.date)-new Date(a.date));
+  let total=0, cost=0, profit=0;
+  orders.forEach(o=>{ const t = orderTotals(o); total+=t.total; cost+=t.cost; profit+=t.profit; });
+
+  const ws = weekSummary(state.weekOffset);
+  const netoUsado = ws.salidas - ws.sobrantes;
+  const difUsado = netoUsado - ws.comprasReg;
+  const cuadra = Math.abs(difUsado) < EPS;
+  const gananciaCaja = ws.cobros - ws.comprasReg;
+
+  return `
+    <div class="week-nav">
+      <button data-action="semana-anterior">‹</button>
+      <div class="week-label">${fmtDateShort(start)} – ${fmtDateShort(end)}</div>
+      <button data-action="semana-siguiente" ${state.weekOffset>=0?'disabled style="opacity:0.3;"':''}>›</button>
+    </div>
+
+    <div class="metric-grid">
+      <div class="metric"><div class="lbl">Ventas</div><div class="val">$${fmt(total)}</div></div>
+      <div class="metric"><div class="lbl">Costo</div><div class="val">$${fmt(cost)}</div></div>
+    </div>
+    <div class="metric ganancia" style="margin-bottom:16px;"><div class="lbl">Ganancia total de la semana (según notas)</div><div class="val">$${fmt(profit)}</div></div>
+
+    <div class="card">
+      <div class="row between" style="margin-bottom:6px;">
+        <div class="card-title" style="margin:0;">Caja de la semana</div>
+        ${ws.payroll ? badge('Semana cerrada','green') : ''}
+      </div>
+      ${kv('Saldo inicial de la semana', money(ws.opening))}
+      ${kv('+ Cobros de clientes', money(ws.cobros))}
+      ${kv('+ Sobrantes devueltos', money(ws.sobrantes))}
+      ${kv('− Salidas para surtir', money(ws.salidas))}
+      ${kv('Saldo al corte', money(ws.closingBefore), 'total')}
+      ${ws.payroll ? `
+        ${kv('− Retiro para empleados', money(ws.payrollAmount))}
+        ${kv('Saldo para iniciar la siguiente semana', money(ws.nextOpening), 'total')}
+        <button class="btn secondary" style="margin-top:10px;" data-action="abrir-cierre">✎ Editar retiro de empleados</button>
+      ` : `
+        <button class="btn mustard" style="margin-top:12px;" data-action="abrir-cierre">Cerrar semana y retirar para empleados</button>
+      `}
+      ${!state.data.cash.initialSet ? `<div class="hint">Aún no registras tu saldo inicial; hazlo en la pestaña Caja para que estos saldos sean los reales.</div>` : ''}
+    </div>
+
+    <div class="card">
+      <div class="row between" style="margin-bottom:6px;">
+        <div class="card-title" style="margin:0;">Cuadre de la semana</div>
+        ${(ws.salidas>EPS || ws.comprasReg>EPS) ? badge(cuadra ? 'Cuadra ✓' : 'Revisar', cuadra ? 'green' : 'amber') : ''}
+      </div>
+      ${kv('Dinero usado en compras (salidas − sobrantes)', money(netoUsado))}
+      ${kv('Notas de compra registradas', money(ws.comprasReg))}
+      ${kv('Diferencia', money(difUsado), 'total')}
+      ${(!cuadra) ? `<div class="hint">${difUsado>0 ? 'Salió más dinero del que se comprobó con notas de compra o sobrante devuelto.' : 'Hay más notas de compra que dinero retirado de la caja.'}</div>` : ''}
+      <div style="margin-top:10px;">
+        ${kv('Ganancia según notas (pedidos de la semana)', money(profit))}
+        ${kv('Ganancia de caja (cobros − compras)', money(gananciaCaja))}
+      </div>
+      <div class="hint">Pueden diferir si hay cobros pendientes o compras y cobros que caen en otra semana.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Ganancia por pedido</div>
+      ${orders.length===0 ? `<div class="empty" style="padding:16px 4px;">No hay pedidos en esta semana.</div>` :
+      orders.map(o=>{
+        const t = orderTotals(o);
+        const f = orderFinance(o);
+        const client = getClient(o.clientId) || {name:o.clientName};
+        const d = new Date(o.date);
+        return `<div class="order-item" data-action="ver-pedido" data-id="${o.id}" style="cursor:pointer;">
+          <div>
+            <div class="client-name" style="font-size:14px;">${escapeHtml(client.name)}</div>
+            <div class="muted">${fmtDateShort(d)}</div>
+            <div class="badges">${payBadge(f)}${purchaseBadge(f)}</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="mono" style="font-weight:700;">$${fmt(t.total)}</div>
+            <div class="profit-tag" style="font-size:12px;">+$${fmt(t.profit)}</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+}
+
+// ---------- EVENT HANDLING ----------
+function attachHandlers(){
+  document.querySelectorAll('[data-action]').forEach(el=>{
+    el.addEventListener('click', onAction);
+  });
+  const filterInput = document.getElementById('product-filter');
+  if(filterInput){
+    filterInput.addEventListener('input', (e)=>{
+      state.productFilterText = e.target.value;
+      applyProductFilter();
+    });
+  }
+  applyProductFilter();
+  const logoInput = document.getElementById('logo-file-input');
+  if(logoInput){
+    logoInput.addEventListener('change', onLogoSelected);
+  }
+  const qtyField = document.getElementById('f-qty');
+  if(qtyField){
+    qtyField.addEventListener('input', ()=>{
+      let v = parseInt(qtyField.value, 10);
+      state.modal.qty = isNaN(v) ? 0 : Math.max(0, v);
+    });
+  }
+  const loginPass = document.getElementById('login-pass');
+  if(loginPass){
+    loginPass.addEventListener('keydown', (ev)=>{
+      if(ev.key === 'Enter') onAction({currentTarget:{dataset:{action:'login'}}});
+    });
+  }
+  // Pago del cliente: el resumen se actualiza sin volver a dibujar la pantalla
+  ['pf-total'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('input', ()=>{ readPayFlowDom(); updatePayFlowSummary(); });
+  });
+  document.querySelectorAll('.pf-alloc').forEach(el=>{
+    el.addEventListener('input', ()=>{ readPayFlowDom(); updatePayFlowSummary(); });
+  });
+}
+
+function applyProductFilter(){
+  const input = document.getElementById('product-filter');
+  const list = document.getElementById('product-list');
+  if(!input || !list) return;
+  const q = input.value.trim().toLowerCase();
+  let anyVisible = false;
+  list.querySelectorAll('.product-item').forEach(el=>{
+    const match = q ? (el.dataset.name||'').includes(q) : el.dataset.default==='true';
+    el.style.display = match ? '' : 'none';
+    if(match) anyVisible = true;
+  });
+  const emptyMsg = document.getElementById('product-empty-filter');
+  if(emptyMsg) emptyMsg.style.display = (!anyVisible) ? 'block' : 'none';
+  const hint = document.getElementById('product-hint');
+  if(hint) hint.style.display = q ? 'none' : '';
+  const clearBtn = document.getElementById('filter-clear-btn');
+  if(clearBtn) clearBtn.style.display = q ? 'flex' : 'none';
+}
+
+const ADMIN_ACTIONS = new Set([
+  'nuevo-cliente','guardar-cliente','renombrar-cliente','abrir-item','nuevo-producto','guardar-item',
+  'eliminar-producto','nuevo-producto-catalogo','editar-producto-catalogo','pedido-para-este-cliente',
+  'elegir-cliente','cambiar-cliente','generar-nota','editar-pedido','guardar-edicion-pedido',
+  'elegir-logo','quitar-logo','abrir-saldo-inicial','guardar-saldo-inicial','abrir-cierre',
+  'guardar-cierre','quitar-cierre','cerrar-pedido','reabrir-pedido','importar-local','exportar-respaldo'
+]);
+
+function onAction(e){
+  const action = e.currentTarget.dataset.action;
+  const id = e.currentTarget.dataset.id;
+  if(ADMIN_ACTIONS.has(action) && !isAdmin()){
+    showToast('Esta acción es solo del administrador.');
+    return;
+  }
+
+  switch(action){
+    case 'tab':
+      state.view = e.currentTarget.dataset.tab;
+      if(state.view==='pedido' && state.orderClientId===null){ /* keep */ }
+      render();
+      break;
+
+    case 'elegir-cliente':
+      state.orderClientId = id;
+      state.productFilterText = '';
+      render();
+      break;
+
+    case 'cambiar-cliente':
+      state.orderClientId = null;
+      state.productFilterText = '';
+      render();
+      break;
+
+    case 'nuevo-cliente':
+      state.modal = {type:'nuevo-cliente', name:''};
+      render();
+      break;
+
+    case 'renombrar-cliente': {
+      const client = getClient(state.clienteDetalleId);
+      if(!client) break;
+      state.modal = {type:'nuevo-cliente', name: client.name, clientId: client.id};
+      render();
+      break;
+    }
+
+    case 'guardar-cliente': {
+      const val = document.getElementById('f-client-name').value.trim();
+      if(!val){ showToast('Escribe un nombre para el cliente.'); return; }
+      const m = state.modal;
+      if(m.clientId){
+        const client = getClient(m.clientId);
+        if(client) client.name = val;
+        state.modal = null;
+        saveData();
+        render();
+        break;
+      }
+      const newClient = {id: uid(), name: val};
+      state.data.clients.push(newClient);
+      state.data.products[newClient.id] = [];
+      state.modal = null;
+      saveData();
+      if(state.view==='pedido'){ state.orderClientId = newClient.id; state.productFilterText = ''; }
+      render();
+      break;
+    }
+
+    case 'abrir-item':
+      openItemModal(id);
+      break;
+
+    case 'nuevo-producto': {
+      const filterInput = document.getElementById('product-filter');
+      const suggested = filterInput ? filterInput.value.trim() : '';
+      openItemModal(null, false, suggested);
+      break;
+    }
+
+    case 'qty-menos': {
+      const qtyInput = document.getElementById('f-qty');
+      if(qtyInput){
+        let v = parseInt(qtyInput.value, 10);
+        if(isNaN(v)) v = 0;
+        v = Math.max(0, v-1);
+        qtyInput.value = v;
+        state.modal.qty = v;
+      }
+      break;
+    }
+
+    case 'qty-mas': {
+      const qtyInput = document.getElementById('f-qty');
+      if(qtyInput){
+        let v = parseInt(qtyInput.value, 10);
+        if(isNaN(v)) v = 0;
+        v = v + 1;
+        qtyInput.value = v;
+        state.modal.qty = v;
+      }
+      break;
+    }
+
+    case 'guardar-item': {
+      const m = state.modal;
+      const isNew = m.productId===null;
+      const priceEl = document.getElementById('f-price');
+      const costEl = document.getElementById('f-cost');
+      const price = parseFloat(priceEl.value);
+      const cost = parseFloat(costEl.value);
+      let name = m.name;
+      if(isNew){
+        name = document.getElementById('f-name').value.trim();
+        if(!name){ showToast('Escribe el nombre del producto.'); return; }
+      }
+      if(isNaN(price) || price<0){ showToast('Escribe un precio de venta válido.'); return; }
+      const finalCost = isNaN(cost) || cost<0 ? 0 : cost;
+      let qty = state.modal.qty;
+      if(!m.catalogOnly){
+        const qtyEl = document.getElementById('f-qty');
+        if(qtyEl){
+          const v = parseInt(qtyEl.value, 10);
+          qty = isNaN(v) ? 0 : Math.max(0, v);
+        }
+      }
+
+      const clientId = state.orderClientId;
+      let products = getProducts(clientId);
+      let prodId = m.productId;
+      if(isNew){
+        prodId = uid();
+        products.push({id:prodId, name, price, cost:finalCost});
+      } else {
+        const p = products.find(pp=>pp.id===prodId);
+        p.price = price;
+        p.cost = finalCost;
+        p.name = name;
+      }
+      state.data.products[clientId] = products;
+
+      if(!m.catalogOnly){
+        const draft = getCurrentDraft();
+        if(qty>0){
+          draft[prodId] = {qty, price, cost:finalCost};
+        } else {
+          delete draft[prodId];
+        }
+      }
+      if(m.catalogOnly) state.orderClientId = null;
+      state.modal = null;
+      saveData();
+      render();
+      break;
+    }
+
+    case 'eliminar-producto': {
+      const m = state.modal;
+      const clientId = state.orderClientId || state.clienteDetalleId;
+      state.data.products[clientId] = getProducts(clientId).filter(p=>p.id!==m.productId);
+      delete getCurrentDraft()[m.productId];
+      if(m.catalogOnly) state.orderClientId = null;
+      state.modal = null;
+      saveData();
+      render();
+      break;
+    }
+
+    case 'cerrar-modal':
+      if(state.modal && state.modal.catalogOnly) state.orderClientId = null;
+      state.modal = null;
+      render();
+      break;
+
+    case 'limpiar-filtro': {
+      const input = document.getElementById('product-filter');
+      if(input){
+        input.value = '';
+        state.productFilterText = '';
+        applyProductFilter();
+        input.focus();
+      }
+      break;
+    }
+
+    case 'generar-nota': {
+      const clientId = state.orderClientId;
+      const draft = getDraft(clientId);
+      const items = Object.entries(draft).filter(([k,v])=>v.qty>0).map(([productId,v])=>{
+        const p = getProducts(clientId).find(pp=>pp.id===productId);
+        return {productId, name: p ? p.name : 'Producto', qty:v.qty, price:v.price, cost:v.cost};
+      });
+      if(items.length===0){ showToast('Agrega al menos un producto.'); return; }
+      const nowIso = new Date().toISOString();
+      const order = {
+        id: uid(),
+        clientId,
+        clientName: getClient(clientId).name,
+        date: nowIso,
+        folio: makeFolio(nowIso),
+        items
+      };
+      state.data.orders.push(order);
+      state.lastOrderId = order.id;
+      delete state.data.drafts[clientId];
+      state.orderClientId = null;
+      state.view = 'nota';
+      saveData();
+      render();
+      break;
+    }
+
+    case 'editar-pedido': {
+      const order = state.data.orders.find(o=>o.id===id);
+      if(!order) break;
+      const draft = {};
+      order.items.forEach(it=>{
+        draft[it.productId] = {qty: it.qty, price: it.price, cost: it.cost};
+      });
+      state.editDraft = draft;
+      state.editingOrderId = order.id;
+      state.orderClientId = order.clientId;
+      state.productFilterText = '';
+      state.view = 'pedido';
+      render();
+      break;
+    }
+
+    case 'cancelar-edicion':
+      state.editingOrderId = null;
+      state.editDraft = null;
+      state.orderClientId = null;
+      state.view = 'historial-detalle';
+      render();
+      break;
+
+    case 'guardar-edicion-pedido': {
+      const order = state.data.orders.find(o=>o.id===state.editingOrderId);
+      if(!order){ break; }
+      const clientId = order.clientId;
+      const draft = getCurrentDraft();
+      const items = Object.entries(draft).filter(([k,v])=>v.qty>0).map(([productId,v])=>{
+        const p = getProducts(clientId).find(pp=>pp.id===productId);
+        return {productId, name: p ? p.name : 'Producto', qty:v.qty, price:v.price, cost:v.cost};
+      });
+      if(items.length===0){ showToast('El pedido debe tener al menos un producto.'); return; }
+      order.items = items;
+      order.updatedAt = new Date().toISOString();
+      order.folio = makeFolio(order.updatedAt);
+      state.lastOrderId = order.id;
+      state.editingOrderId = null;
+      state.editDraft = null;
+      state.orderClientId = null;
+      state.view = 'nota';
+      saveData();
+      render();
+      break;
+    }
+
+    case 'nuevo-pedido':
+      state.view = 'pedido';
+      state.orderClientId = null;
+      render();
+      break;
+
+    case 'copiar-nota': {
+      const order = state.data.orders.find(o=>o.id===state.lastOrderId);
+      const text = buildNotaText(order);
+      navigator.clipboard.writeText(text).then(()=>{
+        showToast('Nota copiada');
+      }).catch(()=>{
+        showToast('No se pudo copiar. Selecciona el texto manualmente.');
+      });
+      break;
+    }
+
+    case 'whatsapp-nota': {
+      const order = state.data.orders.find(o=>o.id===state.lastOrderId);
+      const text = buildNotaText(order);
+      const url = 'https://wa.me/?text=' + encodeURIComponent(text);
+      window.open(url, '_blank');
+      break;
+    }
+
+    case 'descargar-nota': {
+      const order = state.data.orders.find(o=>o.id===state.lastOrderId);
+      if(!order){ showToast('No se pudo generar la imagen.'); break; }
+      showToast('Generando imagen…');
+      generateNotaImageDataUrl(order).then(dataUrl=>{
+        const link = document.createElement('a');
+        link.download = 'nota-' + getOrderFolio(order) + '.png';
+        link.href = dataUrl;
+        link.click();
+      }).catch((err)=>{
+        console.error('Error al generar imagen de la nota', err);
+        showToast('No se pudo generar la imagen.');
+      });
+      break;
+    }
+
+    case 'elegir-logo': {
+      const input = document.getElementById('logo-file-input');
+      if(input) input.click();
+      break;
+    }
+
+    case 'quitar-logo':
+      state.data.logo = null;
+      saveData();
+      render();
+      break;
+
+    case 'ver-cliente':
+      state.clienteDetalleId = id;
+      state.view = 'cliente-detalle';
+      render();
+      break;
+
+    case 'editar-producto-catalogo': {
+      state.orderClientId = state.clienteDetalleId;
+      openItemModal(id, true);
+      break;
+    }
+
+    case 'nuevo-producto-catalogo':
+      state.orderClientId = state.clienteDetalleId;
+      openItemModal(null, true);
+      break;
+
+    case 'pedido-para-este-cliente':
+      state.orderClientId = state.clienteDetalleId;
+      state.productFilterText = '';
+      state.view = 'pedido';
+      render();
+      break;
+
+    case 'login': {
+      const emailEl = document.getElementById('login-email');
+      const passEl = document.getElementById('login-pass');
+      const email = emailEl ? emailEl.value.trim() : '';
+      const pass = passEl ? passEl.value : '';
+      state.auth.email = email;
+      if(!email || !pass){ state.auth.error = 'Escribe tu correo y tu contraseña.'; render(); break; }
+      state.auth.error = '';
+      showToast('Entrando…');
+      cloud.signIn(email, pass).catch(err=>{ state.auth.error = authErrorText(err); render(); });
+      break;
+    }
+
+    case 'logout':
+      if(cloud) cloud.signOut();
+      break;
+
+    case 'reintentar':
+      if(!cloud){ location.reload(); break; }
+      onAuthChanged(state.auth.user);
+      break;
+
+    case 'ir-cobranza':
+      state.detailBack = state.view;
+      state.payBack = state.view === 'pago-cliente' ? 'cobranza' : state.view;
+      state.view = 'cobranza';
+      render();
+      break;
+
+    case 'abrir-pago-cliente': {
+      const clientId = e.currentTarget.dataset.client;
+      state.payBack = state.view === 'historial-detalle' ? 'historial-detalle' : 'cobranza';
+      state.payFlow = {clientId, total:'', date: localDateStr(new Date()), note:'', mode:'auto', alloc:{}};
+      state.view = 'pago-cliente';
+      render();
+      break;
+    }
+
+    case 'cancelar-pago-cliente':
+      state.payFlow = null;
+      state.view = state.payBack || 'cobranza';
+      render();
+      break;
+
+    case 'pf-modo': {
+      readPayFlowDom();
+      const pf = state.payFlow;
+      const mode = e.currentTarget.dataset.mode;
+      if(pf.mode !== mode){
+        pf.mode = mode;
+        if(mode === 'manual'){
+          const c = computePayFlow({...pf, mode:'auto'});
+          pf.alloc = {};
+          Object.keys(c.alloc).forEach(k=>{ pf.alloc[k] = String(c.alloc[k]); });
+        }
+      }
+      render();
+      break;
+    }
+
+    case 'pf-todo': {
+      readPayFlowDom();
+      const pf = state.payFlow;
+      pf.total = String(computePayFlow(pf).debt);
+      if(pf.mode === 'manual'){
+        const c = computePayFlow({...pf, mode:'auto'});
+        pf.alloc = {};
+        Object.keys(c.alloc).forEach(k=>{ pf.alloc[k] = String(c.alloc[k]); });
+      }
+      render();
+      break;
+    }
+
+    case 'pf-max': {
+      readPayFlowDom();
+      const pf = state.payFlow;
+      const c = computePayFlow(pf);
+      const row = c.list.find(x=>x.o.id === id);
+      if(!row) break;
+      const others = c.assigned - (c.alloc[id] || 0);
+      const room = c.total > EPS ? c.total - others : row.f.pending;
+      pf.alloc[id] = String(round2(Math.max(0, Math.min(row.f.pending, room))));
+      render();
+      break;
+    }
+
+    case 'guardar-pago-cliente': {
+      readPayFlowDom();
+      const pf = state.payFlow;
+      if(!pf) break;
+      const c = computePayFlow(pf);
+      if(c.total <= EPS){ showToast('Escribe el importe del pago.'); return; }
+      if(c.rest > EPS){
+        showToast(c.assigned >= c.debt - EPS ? 'El pago excede lo que debe el cliente.' : 'Faltan ' + money(c.rest) + ' por asignar a alguna nota.');
+        return;
+      }
+      if(c.rest < -EPS){ showToast('Estás asignando más de lo que indica el importe del pago.'); return; }
+      for(const {o, f} of c.list){
+        if((c.alloc[o.id] || 0) > f.pending + EPS){ showToast('El abono a la nota ' + getOrderFolio(o) + ' excede lo que debe.'); return; }
+      }
+      const iso = dateInputToIso(pf.date, null);
+      const groupId = uid();
+      const note = (pf.note || '').trim();
+      let n = 0;
+      c.list.forEach(({o})=>{
+        const amount = c.alloc[o.id];
+        if(!amount) return;
+        ensureOrderFinance(o);
+        o.payments.push({id:uid(), amount, date:iso, note, groupId, groupTotal:c.total});
+        n++;
+      });
+      state.payFlow = null;
+      state.view = state.payBack || 'cobranza';
+      saveData();
+      render();
+      showToast('Pago de ' + money(c.total) + ' registrado en ' + n + ' nota' + (n === 1 ? '' : 's') + '.');
+      break;
+    }
+
+    case 'cerrar-pedido': {
+      const order = state.data.orders.find(o=>o.id === state.historyOpenId);
+      if(!order) break;
+      const f = orderFinance(order);
+      if(!f.settled && state.confirmCloseId !== order.id){
+        state.confirmCloseId = order.id;
+        showToast('Aún hay pendientes (cobro, compras o caja). Presiona "Cerrar pedido" otra vez para cerrarlo de todos modos.');
+        return;
+      }
+      state.confirmCloseId = null;
+      order.closed = true;
+      order.closedAt = new Date().toISOString();
+      order.closedBy = myUid();
+      saveData();
+      render();
+      break;
+    }
+
+    case 'reabrir-pedido': {
+      const order = state.data.orders.find(o=>o.id === state.historyOpenId);
+      if(!order) break;
+      order.closed = false;
+      delete order.closedAt;
+      delete order.closedBy;
+      saveData();
+      render();
+      break;
+    }
+
+    case 'exportar-respaldo':
+      exportBackup();
+      break;
+
+    case 'importar-local': {
+      const legacy = legacyData();
+      if(!legacy){ showToast('No hay datos locales por subir.'); break; }
+      if(!state.confirmImport){
+        state.confirmImport = true;
+        showToast('Se subirán ' + (legacy.clients||[]).length + ' clientes y ' + (legacy.orders||[]).length + ' pedidos. Presiona otra vez para confirmar.');
+        return;
+      }
+      state.confirmImport = false;
+      importLegacy(legacy);
+      render();
+      showToast('Datos subidos.');
+      break;
+    }
+
+    case 'ver-pedido':
+      state.historyOpenId = id;
+      state.detailBack = ['historial','corte','caja','nota','clientes','cobranza'].includes(state.view) ? state.view : 'historial';
+      state.view = 'historial-detalle';
+      render();
+      break;
+
+    case 'volver-historial':
+      state.view = state.detailBack || 'historial';
+      render();
+      break;
+
+    case 'filtro-historial':
+      state.historyFilter = e.currentTarget.dataset.filter;
+      render();
+      break;
+
+    case 'abrir-registro':
+      openRegistro(e.currentTarget.dataset.kind, id);
+      break;
+
+    case 'guardar-registro': {
+      const m = state.modal;
+      const order = state.data.orders.find(o=>o.id===state.historyOpenId);
+      if(!order) break;
+      if(!isAdmin() && order.closed){ showToast('Este pedido ya está cerrado.'); return; }
+      const amount = parseFloat(document.getElementById('f-amount').value);
+      if(isNaN(amount) || amount <= 0){ showToast('Escribe un importe mayor a cero.'); return; }
+      const dateStr = document.getElementById('f-date').value;
+      const labelEl = document.getElementById('f-label');
+      const label = labelEl ? labelEl.value.trim() : '';
+      const iso = dateInputToIso(dateStr, m.originalDate);
+      ensureOrderFinance(order);
+      if(m.kind === 'pago'){
+        if(m.id){
+          const p = order.payments.find(x=>x.id===m.id);
+          if(p){ p.amount = amount; p.date = iso; p.note = label; }
+        } else {
+          order.payments.push({id:uid(), amount, date:iso, note:label});
+        }
+      } else if(m.kind === 'compra'){
+        if(m.id){
+          const p = order.purchases.find(x=>x.id===m.id);
+          if(p){ p.amount = amount; p.date = iso; p.supplier = label; }
+        } else {
+          order.purchases.push({id:uid(), amount, date:iso, supplier:label});
+        }
+      } else {
+        if(m.id){
+          const p = order.movs.find(x=>x.id===m.id);
+          if(p){ p.amount = amount; p.date = iso; p.type = m.kind; }
+        } else {
+          order.movs.push({id:uid(), type:m.kind, amount, date:iso});
+        }
+      }
+      state.modal = null;
+      saveData();
+      render();
+      break;
+    }
+
+    case 'eliminar-registro': {
+      const m = state.modal;
+      const order = state.data.orders.find(o=>o.id===state.historyOpenId);
+      if(!order || !m.id) break;
+      if(!isAdmin() && order.closed){ showToast('Este pedido ya está cerrado.'); return; }
+      ensureOrderFinance(order);
+      if(m.kind === 'pago') order.payments = order.payments.filter(x=>x.id!==m.id);
+      else if(m.kind === 'compra') order.purchases = order.purchases.filter(x=>x.id!==m.id);
+      else order.movs = order.movs.filter(x=>x.id!==m.id);
+      state.modal = null;
+      saveData();
+      render();
+      break;
+    }
+
+    case 'abrir-saldo-inicial':
+      state.modal = {type:'saldo-inicial', amount: state.data.cash.initialSet ? state.data.cash.initial : ''};
+      render();
+      break;
+
+    case 'guardar-saldo-inicial': {
+      const v = parseFloat(document.getElementById('f-initial').value);
+      if(isNaN(v)){ showToast('Escribe un importe válido.'); return; }
+      state.data.cash.initial = v;
+      state.data.cash.initialSet = true;
+      state.modal = null;
+      saveData();
+      render();
+      break;
+    }
+
+    case 'abrir-cierre': {
+      const ws = weekSummary(state.weekOffset);
+      state.modal = {
+        type:'cierre-semana',
+        key: ws.key,
+        closingBefore: ws.closingBefore,
+        amount: ws.payroll ? ws.payroll.amount : '',
+        hasPayroll: !!ws.payroll,
+        label: `${fmtDateShort(ws.start)} – ${fmtDateShort(ws.end)}`,
+        confirmOver: false
+      };
+      render();
+      break;
+    }
+
+    case 'guardar-cierre': {
+      const m = state.modal;
+      const v = parseFloat(document.getElementById('f-payroll').value);
+      if(isNaN(v) || v < 0){ showToast('Escribe un importe válido (puede ser 0).'); return; }
+      if(v > m.closingBefore + EPS && !m.confirmOver){
+        m.confirmOver = true;
+        showToast('El retiro supera el saldo al corte. Presiona Guardar otra vez para confirmar.');
+        return;
+      }
+      state.data.cash.payrolls[m.key] = {amount: v, date: new Date().toISOString()};
+      state.modal = null;
+      saveData();
+      render();
+      break;
+    }
+
+    case 'quitar-cierre': {
+      const m = state.modal;
+      delete state.data.cash.payrolls[m.key];
+      state.modal = null;
+      saveData();
+      render();
+      break;
+    }
+
+    case 'semana-anterior':
+      state.weekOffset--;
+      render();
+      break;
+
+    case 'semana-siguiente':
+      if(state.weekOffset<0) state.weekOffset++;
+      render();
+      break;
+  }
+}
+
+window.BodegaApp = {start: startApp, fail: failApp};
+
+if(typeof window.addEventListener === 'function'){
+  const updateOfflineBanner = ()=>{
+    const el = document.getElementById('offline-banner');
+    if(el) el.style.display = navigator.onLine === false ? 'block' : 'none';
+  };
+  window.addEventListener('online', updateOfflineBanner);
+  window.addEventListener('offline', updateOfflineBanner);
+}
+if(typeof document.addEventListener === 'function'){
+  document.addEventListener('focusout', ()=>{
+    setTimeout(()=>{ if(state.pendingRender && !state.modal && !isTypingNow()) render(); }, 80);
+  });
+}
+
+render();
+// Si los servicios en línea no cargan, se avisa en lugar de dejar la pantalla en "Cargando…"
+setTimeout(()=>{ if(!cloud && state.auth.status === 'loading') failApp(new Error('tiempo de espera agotado')); }, 20000);
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+  });
+}
+</script>
+
+<script type="module">
+// Conexión con Firebase (Authentication + Firestore). Los datos de configuración no son secretos:
+// la seguridad la dan las reglas de Firestore (archivo firestore.rules).
+const firebaseConfig = {
+  apiKey: "AIzaSyB51J4hWiZJnS5Y0KpuW1mvTs2unN9LJSE",
+  authDomain: "bodega-toronjitas.firebaseapp.com",
+  projectId: "bodega-toronjitas",
+  storageBucket: "bodega-toronjitas.firebasestorage.app",
+  messagingSenderId: "564080617374",
+  appId: "1:564080617374:web:1685703e2b18a3a408988f"
+};
+const SDK = 'https://www.gstatic.com/firebasejs/12.2.1/';
+
+(async () => {
+  try {
+    const [appM, authM, fs] = await Promise.all([
+      import(SDK + 'firebase-app.js'),
+      import(SDK + 'firebase-auth.js'),
+      import(SDK + 'firebase-firestore.js')
+    ]);
+    const app = appM.initializeApp(firebaseConfig);
+    const auth = authM.getAuth(app);
+    let db;
+    try {
+      // Guarda los datos en el teléfono para poder trabajar sin señal
+      db = fs.initializeFirestore(app, {
+        localCache: fs.persistentLocalCache({ tabManager: fs.persistentMultipleTabManager() }),
+        ignoreUndefinedProperties: true
+      });
+    } catch (e) {
+      db = fs.initializeFirestore(app, { ignoreUndefinedProperties: true });
+    }
+
+    const cloud = {
+      onAuth(cb) {
+        return authM.onAuthStateChanged(auth, u => cb(u ? { uid: u.uid, email: u.email } : null));
+      },
+      signIn(email, pass) { return authM.signInWithEmailAndPassword(auth, email, pass); },
+      signOut() { return authM.signOut(auth); },
+      async getProfile(uid) {
+        const ref = fs.doc(db, 'users', uid);
+        try {
+          const snap = await fs.getDoc(ref);
+          return snap.exists() ? snap.data() : null;
+        } catch (e) {
+          try {
+            const snap = await fs.getDocFromCache(ref);
+            return snap.exists() ? snap.data() : null;
+          } catch (e2) { throw e; }
+        }
+      },
+      listen(col, cb, onErr) {
+        return fs.onSnapshot(fs.collection(db, col),
+          snap => cb(snap.docs.map(d => ({ id: d.id, ...d.data() }))), onErr);
+      },
+      listenDoc(col, id, cb, onErr) {
+        return fs.onSnapshot(fs.doc(db, col, id),
+          snap => cb(snap.exists() ? { id: snap.id, ...snap.data() } : null), onErr);
+      },
+      batch(ops) {
+        const b = fs.writeBatch(db);
+        ops.forEach(o => {
+          const ref = fs.doc(db, o.col, o.id);
+          if (o.op === 'delete') b.delete(ref); else b.set(ref, o.data);
+        });
+        return b.commit();
+      }
+    };
+    window.BodegaApp.start(cloud);
+  } catch (err) {
+    console.error(err);
+    window.BodegaApp.fail(err);
+  }
+})();
+</script>
+</body>
+</html>
